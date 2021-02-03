@@ -283,6 +283,19 @@ input {
     width: 48%;
 }
 
+/* Grafics ===================== */
+#graphics {
+    margin-top: 2rem;
+}
+
+/* Grafic Cards ===================== */
+#graphics .card {
+    background: white;
+    padding: 1.5rem 2rem;
+    border-radius: 0.25rem;
+    margin-bottom: 2rem;
+    align-items: center;
+}
 
 /* Footer ===================== */
 footer {
@@ -301,6 +314,12 @@ footer {
     }
 
     #balance {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+    }
+
+    #graphics {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 2rem;

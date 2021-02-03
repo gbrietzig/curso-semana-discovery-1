@@ -33,13 +33,11 @@ const Transaction = {
 
     add(transaction){
         Transaction.all.push(transaction)
-
         App.reload()
     },
 
     remove(index) {
         Transaction.all.splice(index, 1)
-
         App.reload()
     },
 
@@ -62,7 +60,6 @@ const Transaction = {
         })
         return expense;
     },
-
     total() {
         return Transaction.incomes() + Transaction.expenses();
     }
@@ -75,7 +72,6 @@ const DOM = {
         const tr = document.createElement('tr')
         tr.innerHTML = DOM.innerHTMLTransaction(transaction, index)
         tr.dataset.index = index
-
         DOM.transactionsContainer.appendChild(tr)
     },
 
@@ -85,12 +81,12 @@ const DOM = {
         const amount = Utils.formatCurrency(transaction.amount)
 
         const html = `
-        <td class="description">${transaction.description}</td>
-        <td class="${CSSclass}">${amount}</td>
-        <td class="date">${transaction.date}</td>
-        <td>
-            <img onclick="Transaction.remove(${index})" src="./assets/minus.svg" alt="Remover transação">
-        </td>
+            <td class="description">${transaction.description}</td>
+            <td class="${CSSclass}">${amount}</td>
+            <td class="date">${transaction.date}</td>
+            <td>
+                <img onclick="Transaction.remove(${index})" src="./assets/minus.svg" alt="Remover transação">
+            </td>
         `
 
         return html
@@ -199,6 +195,95 @@ const Form = {
     }
 }
 
+const calculations = { 
+    sumTransactions(){
+        // CRIA UMA NOVA LISTA
+        sumIncome=[]
+        sumExpense=[]
+        sumAll=[]
+
+        // PARAMETROS EXTERNOS
+        indexCount = 0
+        lengthTransactions = Transaction.all.length
+        
+        // PARA CADA TRANSAÇÃO
+        while (indexCount<lengthTransactions) {
+            if (Transaction.all[indexCount].amount>=0){
+                sumIncome=calculations.checkInList(sumIncome, Transaction.all[indexCount].description, Transaction.all[indexCount].amount/100)
+            }
+            else{
+                sumExpense=calculations.checkInList(sumExpense, Transaction.all[indexCount].description, Transaction.all[indexCount].amount/100)
+            }
+            indexCount++
+        }
+        sumAll.push(sumIncome)
+        sumAll.push(sumExpense)
+        return sumAll
+    },
+
+    checkInList(list, description, amount){
+        insert=true
+        indexCountInCheck = 0
+        lengthList=list.length
+
+        while (indexCountInCheck<lengthList){
+            if (list[indexCountInCheck][0]==description){
+                list[indexCountInCheck][1]=list[indexCountInCheck][1]+amount
+                insert=false
+                break
+            }
+            indexCountInCheck++
+        }
+        if (insert){
+            list.push([description, amount])
+        }
+        return list
+    },
+
+    transationsInOrder(startList, maior){
+        // CRIA UMA NOVA LISTA
+        endList=[]
+
+        // PARAMETROS EXTERNOS
+        indexCount = 0
+        lengthTransactions = startList.length
+
+        // PARA CADA TRANSAÇÃO
+        while (indexCount<lengthTransactions){
+            // VEJA O TAMANHO DA NOVA LISTA
+            internalLengthTransactions = endList.length
+
+            //SE FOR ZERADA
+            if (internalLengthTransactions==0){
+                // APRENDE
+                endList.push(startList[indexCount])
+            }
+
+            //SE JÁ HOUVER INFORMAÇÕES
+            else{
+                // COMECE DO 0
+                internalIndexCount = 0
+                while (internalIndexCount<internalLengthTransactions){  
+                    if (maior){
+                        if (endList[internalIndexCount][1]<startList[indexCount][1]){
+                            break;
+                        }
+                    }
+                    else {
+                        if (endList[internalIndexCount][1]>startList[indexCount][1]){
+                            break;
+                        }
+                    }
+                    internalIndexCount++
+                }
+                endList.splice(internalIndexCount, 0, startList[indexCount])
+            }    
+            indexCount++
+        }
+        return endList;
+    }, 
+}
+
 const App = {
     init() {
         Transaction.all.forEach(DOM.addTransaction)
@@ -206,6 +291,11 @@ const App = {
         DOM.updateBalance()
 
         Storage.set(Transaction.all)
+        sumIncomeExpense=calculations.sumTransactions()
+        google.charts.load('current', {'packages':['corechart']});
+        google.setOnLoadCallback(function() { drawChart(true); });
+        google.setOnLoadCallback(function() { drawChart(false); });
+        google.setOnLoadCallback(drawChartTotal);
     },
     reload() {
         DOM.clearTransactions()
@@ -213,4 +303,117 @@ const App = {
     },
 }
 
+
 App.init()
+
+
+function drawChart(graficsBig) {
+    var data = new google.visualization.DataTable();
+    data.addColumn('string', 'Topping');
+    data.addColumn('number', 'Slices');
+    color=[]
+    if (graficsBig){
+        title='Entradas (TOP 5)'
+        listToGrafics=calculations.transationsInOrder(sumIncomeExpense[0], graficsBig)
+        div='income_chart_div'
+        correction=1
+        color=['darkgreen','forestgreen','green','lime','chartreuse']
+    }
+    else{
+        title='Saídas (TOP 5)'
+        listToGrafics=calculations.transationsInOrder(sumIncomeExpense[1], graficsBig)
+        div='expense_chart_div'
+        correction=-1
+        color=['DarkRed','Red','Firebrick','IndianRed','LightCoral']
+    }
+
+    if (listToGrafics.length>5){
+        listToGrafics=listToGrafics.slice(0,5)
+    }
+    finalIndex=0
+    finalLength=listToGrafics.length
+
+    while (finalIndex<finalLength){
+        data.addRows([
+            [listToGrafics[finalIndex][0], listToGrafics[finalIndex][1]*correction]
+        ]);
+        finalIndex++
+    }
+    var options = {
+        title: title,
+        legend: 'none',
+        pieHole: 0.1,
+        
+        slices: {
+            0: { color: color[0] },
+            1: { color: color[1] },
+            2: { color: color[2] },
+            3: { color: color[3] },
+            4: { color: color[4] }
+          }
+    };
+
+    var chart = new google.visualization.PieChart(document.getElementById(div));
+    chart.draw(data, options);
+}
+
+function drawChartTotal() {
+    var data = new google.visualization.DataTable();
+    data.addColumn('string', 'Topping');
+    data.addColumn('number', 'Slices');
+    color=[]
+
+    incomesList=calculations.transationsInOrder(sumIncomeExpense[0], true)
+    incomesIndex=0
+    incomesLength=incomesList.length
+    incomesAmount=0
+    while (incomesIndex<incomesLength){
+        incomesAmount=incomesAmount+incomesList[incomesIndex][1]
+        incomesIndex++
+    }
+    
+    expensesList=calculations.transationsInOrder(sumIncomeExpense[1], false)
+    expensesIndex=0
+    expensesLength=expensesList.length
+    expensesAmount=0
+    while (expensesIndex<expensesLength){
+        expensesAmount=expensesAmount+expensesList[expensesIndex][1]*-1
+        expensesIndex++
+    }
+
+
+    if (incomesAmount>=expensesAmount){
+        title='Carteira SAUDAVEL'
+        color=['darkgreen','forestgreen']
+        data.addRows([
+            ['Saídas do período', expensesAmount]
+        ]);
+        data.addRows([
+            ['Entrada restante', incomesAmount-expensesAmount]
+        ]);
+    }
+    else{
+        title='Carteira EM RISCO'
+        color=['DarkRed','Red']
+        data.addRows([
+            ['Entradas do período', expensesAmount]
+        ]);
+        data.addRows([
+            ['Saída restante', expensesAmount-incomesAmount]
+        ]);
+    }
+
+    var options = {
+        title: title,
+        legend: 'none',
+        pieHole: 0.1,
+        
+        slices: {
+            0: { color: color[0] },
+            1: { color: color[1] }
+          }
+    };
+
+    var chart = new google.visualization.PieChart(document.getElementById('total_chart_div'));
+    chart.draw(data, options);
+}
