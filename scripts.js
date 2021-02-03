@@ -1,9 +1,18 @@
 const Modal = {
-    open(){
-        // Abrir modal
+    openSimple(){
+        // Abrir modal simples
         // Adicionar a class active ao modal
         document
-            .querySelector('.modal-overlay')
+            .querySelector('.modal-overlay.simple')
+            .classList
+            .add('active')
+
+    },
+    openMult(){
+        // Abrir modal mult
+        // Adicionar a class active ao modal
+        document
+            .querySelector('.modal-overlay.mult')
             .classList
             .add('active')
 
@@ -12,7 +21,7 @@ const Modal = {
         // fechar o modal
         // remover a class active do modal
         document
-            .querySelector('.modal-overlay')
+            .querySelector('.modal-overlay.active')
             .classList
             .remove('active')
     }
@@ -142,16 +151,31 @@ const Form = {
     amount: document.querySelector('input#amount'),
     date: document.querySelector('input#date'),
 
-    getValues() {
-        return {
-            description: Form.description.value,
-            amount: Form.amount.value,
-            date: Form.date.value
+    descriptionM: document.querySelector('input#descriptionM'),
+    partM: document.querySelector('input#partM'),
+    amountM: document.querySelector('input#amountM'),
+    dateM: document.querySelector('input#dateM'),
+
+    getValues(formType) {
+        if (formType=='simple'){
+            return {
+                description: Form.description.value,
+                amount: Form.amount.value,
+                date: Form.date.value
+            }
+        }
+        else if (formType=='mult') {
+            return {
+                description: Form.descriptionM.value,
+                part: Form.partM.value,
+                amount: Form.amountM.value,
+                date: Form.dateM.value
+            }
         }
     },
 
     validateFields() {
-        const { description, amount, date } = Form.getValues()
+        const { description, amount, date } = Form.getValues('simple')
         
         if( description.trim() === "" || 
             amount.trim() === "" || 
@@ -160,9 +184,33 @@ const Form = {
         }
     },
 
-    formatValues() {
-        let { description, amount, date } = Form.getValues()
+    validateFieldsMult() {
+        const { description, part, amount, date } = Form.getValues('mult')
         
+        if( description.trim() === "" || 
+            part.trim() === "" || 
+            amount.trim() === "" || 
+            date.trim() === "" ) {
+                throw new Error("Por favor, preencha todos os campos")
+        }
+    },
+
+    formatValues() {
+        let { description, amount, date } = Form.getValues('simple')
+        
+        amount = Utils.formatAmount(amount)
+
+        date = Utils.formatDate(date)
+
+        return {
+            description,
+            amount,
+            date
+        }
+    },
+
+    formatValuesMult() {
+        let { description, amount, date } = Form.getValues('mult')
         amount = Utils.formatAmount(amount)
 
         date = Utils.formatDate(date)
@@ -186,6 +234,20 @@ const Form = {
         try {
             Form.validateFields()
             const transaction = Form.formatValues()
+            Transaction.add(transaction)
+            Form.clearFields()
+            Modal.close()
+        } catch (error) {
+            alert(error.message)
+        }
+    },
+
+    submitMult(event) {
+        event.preventDefault()
+
+        try {
+            Form.validateFieldsMult()
+            const transaction = Form.formatValuesMult()
             Transaction.add(transaction)
             Form.clearFields()
             Modal.close()
@@ -303,9 +365,7 @@ const App = {
     },
 }
 
-
 App.init()
-
 
 function drawChart(graficsBig) {
     var data = new google.visualization.DataTable();

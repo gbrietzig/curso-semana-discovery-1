@@ -52,10 +52,12 @@ h2 {
 a {
     color: var(--green);
     text-decoration: none;
+    padding-right: 1rem;
 }
 
 a:hover {
     color: var(--light-green);
+    text-decoration: underline ;
 }
 
 button {
