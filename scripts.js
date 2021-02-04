@@ -40,8 +40,30 @@ const Storage = {
 const Transaction = {
     all: Storage.get(),
 
-    add(transaction){
-        Transaction.all.push(transaction)
+    add(transaction, formType){
+        if (formType=='simple'){
+            Transaction.all.push(transaction)
+        }
+        else if (formType=='mult'){
+            localIndex=0
+            localLen=transaction.part
+            dateInPart=transaction.date.split("/")
+            while (localIndex<localLen){
+                finalDate=Utils.checkDate(dateInPart,localIndex)
+
+                finalTransaction={
+                    'description': transaction.description,
+                    'amount': transaction.amount,
+                    'date': finalDate
+                }
+                
+                Transaction.all.push(finalTransaction)
+
+                localIndex++
+            }
+        }
+
+        //Transaction.all.push(transaction)
         App.reload()
     },
 
@@ -69,6 +91,7 @@ const Transaction = {
         })
         return expense;
     },
+
     total() {
         return Transaction.incomes() + Transaction.expenses();
     }
@@ -125,6 +148,12 @@ const Utils = {
         return value
     },
 
+    formatInt(value){
+        value = Number(value) * 1
+        
+        return value
+    },
+
     formatDate(date) {
         const splittedDate = date.split("-")
         return `${splittedDate[2]}/${splittedDate[1]}/${splittedDate[0]}`
@@ -143,6 +172,46 @@ const Utils = {
         })
 
        return signal + value
+    },
+
+    checkDate(date, part){
+        monthBefore=Number(date[1])+part
+        yearToAdd=Math.floor(monthBefore/12)
+        monthAfter=monthBefore-(yearToAdd*12)-1
+        yearAfter=(date[2]*1)+yearToAdd
+
+        needCheckDate=true
+        tryToCheck=0
+
+        finalDate= new Date()
+        while (needCheckDate)
+        {
+            finalDate.setFullYear(yearAfter, monthAfter, date[0]-tryToCheck);
+    
+            checkDay=finalDate.getDate()
+            checkMonth=finalDate.getMonth()
+            checkYear=finalDate.getFullYear()
+
+            if ((date[0]-tryToCheck==checkDay) && (monthAfter==checkMonth) && (yearAfter==checkYear)){
+                break
+            }    
+            tryToCheck=tryToCheck+1
+        }
+
+        finalDay=String(date[0]-tryToCheck)
+        finalMonth=String(monthAfter+1)
+        finalYear=String(yearAfter)
+
+        if (finalDay.length<2){
+            finalDay='0'+finalDay
+        }
+
+        if (finalMonth.length<2){
+            finalMonth='0'+finalMonth
+        }
+
+        lastDate=finalDay+'/'+finalMonth+'/'+finalYear
+        return lastDate
     }
 }
 
@@ -174,51 +243,59 @@ const Form = {
         }
     },
 
-    validateFields() {
-        const { description, amount, date } = Form.getValues('simple')
-        
-        if( description.trim() === "" || 
-            amount.trim() === "" || 
-            date.trim() === "" ) {
+    validateFields(formType) {
+        if (formType=='simple')
+        {
+            const { description, amount, date } = Form.getValues(formType)    
+            if( description.trim() === "" || 
+                amount.trim() === "" || 
+                date.trim() === "" ) 
+            {
                 throw new Error("Por favor, preencha todos os campos")
+            }
         }
-    },
-
-    validateFieldsMult() {
-        const { description, part, amount, date } = Form.getValues('mult')
-        
-        if( description.trim() === "" || 
-            part.trim() === "" || 
-            amount.trim() === "" || 
-            date.trim() === "" ) {
+        else if (formType=='mult') {
+            const { description, part, amount, date } = Form.getValues(formType)
+            
+            if( description.trim() === "" || 
+                part.trim() === "" || 
+                amount.trim() === "" || 
+                date.trim() === "" ) 
+            {
                 throw new Error("Por favor, preencha todos os campos")
+            }
+
         }
     },
 
-    formatValues() {
-        let { description, amount, date } = Form.getValues('simple')
-        
-        amount = Utils.formatAmount(amount)
+    formatValues(formType) {
+        if (formType=='simple'){
+            let { description, amount, date } = Form.getValues(formType)
+            
+            amount = Utils.formatAmount(amount)
+            date = Utils.formatDate(date)
+            
+            return {
+                description,
+                amount,
+                date
+            }
 
-        date = Utils.formatDate(date)
-
-        return {
-            description,
-            amount,
-            date
         }
-    },
+        else if (formType=='mult'){
+            let { description, part, amount, date } = Form.getValues(formType)
+            
+            part=Utils.formatInt(part)
+            amount = Utils.formatAmount(amount)
+            date = Utils.formatDate(date)
 
-    formatValuesMult() {
-        let { description, amount, date } = Form.getValues('mult')
-        amount = Utils.formatAmount(amount)
+            return {
+                description,
+                part,
+                amount,
+                date
+            }
 
-        date = Utils.formatDate(date)
-
-        return {
-            description,
-            amount,
-            date
         }
     },
 
@@ -226,29 +303,18 @@ const Form = {
         Form.description.value = ""
         Form.amount.value = ""
         Form.date.value = ""
+        Form.descriptionM.value = ""
+        Form.partM.value = ""
+        Form.amountM.value = ""
+        Form.dateM.value = ""
     },
 
-    submit(event) {
+    submit(event, formType) {
         event.preventDefault()
-
         try {
-            Form.validateFields()
-            const transaction = Form.formatValues()
-            Transaction.add(transaction)
-            Form.clearFields()
-            Modal.close()
-        } catch (error) {
-            alert(error.message)
-        }
-    },
-
-    submitMult(event) {
-        event.preventDefault()
-
-        try {
-            Form.validateFieldsMult()
-            const transaction = Form.formatValuesMult()
-            Transaction.add(transaction)
+            Form.validateFields(formType)
+            const transaction = Form.formatValues(formType)
+            Transaction.add(transaction, formType)
             Form.clearFields()
             Modal.close()
         } catch (error) {
