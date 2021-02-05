@@ -21,7 +21,6 @@ const Modal = {
     openEdit(){
         // Abrir modal mult
         // Adicionar a class active ao modal
-        Storage.edit()
         document
             .querySelector('.modal-overlay.edit')
             .classList
@@ -77,8 +76,9 @@ const Transaction = {
     },
 
     edit(index) {
-        //console.log(ransaction.all[index])//.splice(index, 1)
+        transaction=Transaction.all[index]
         Modal.openEdit()
+        console.log(transaction)
         //App.reload()
     },
 
@@ -193,17 +193,24 @@ const Utils = {
     },
 
     checkDate(date, part){
+        
         monthBefore=Number(date[1])+part
-        yearToAdd=Math.floor(monthBefore/12)
+        
+        yearToAdd=Math.ceil(monthBefore/12)-1
+        
         monthAfter=monthBefore-(yearToAdd*12)-1
+        
         yearAfter=(date[2]*1)+yearToAdd
+        
 
         needCheckDate=true
         tryToCheck=0
 
         finalDate= new Date()
+        
         while (needCheckDate)
         {
+            
             finalDate.setFullYear(yearAfter, monthAfter, date[0]-tryToCheck);
     
             checkDay=finalDate.getDate()
@@ -215,6 +222,7 @@ const Utils = {
             }    
             tryToCheck=tryToCheck+1
         }
+        console.log(8)
 
         finalDay=String(date[0]-tryToCheck)
         finalMonth=String(monthAfter+1)
