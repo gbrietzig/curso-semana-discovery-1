@@ -8,6 +8,7 @@ const Modal = {
             .add('active')
 
     },
+
     openMult(){
         // Abrir modal mult
         // Adicionar a class active ao modal
@@ -15,8 +16,18 @@ const Modal = {
             .querySelector('.modal-overlay.mult')
             .classList
             .add('active')
-
     },
+    
+    openEdit(){
+        // Abrir modal mult
+        // Adicionar a class active ao modal
+        Storage.edit()
+        document
+            .querySelector('.modal-overlay.edit')
+            .classList
+            .add('active')
+    },
+
     close(){
         // fechar o modal
         // remover a class active do modal
@@ -40,6 +51,7 @@ const Storage = {
 const Transaction = {
     all: Storage.get(),
 
+    
     add(transaction, formType){
         if (formType=='simple'){
             Transaction.all.push(transaction)
@@ -65,6 +77,12 @@ const Transaction = {
 
         //Transaction.all.push(transaction)
         App.reload()
+    },
+
+    edit(index) {
+        //console.log(ransaction.all[index])//.splice(index, 1)
+        Modal.openEdit()
+        //App.reload()
     },
 
     remove(index) {
@@ -116,6 +134,9 @@ const DOM = {
             <td class="description">${transaction.description}</td>
             <td class="${CSSclass}">${amount}</td>
             <td class="date">${transaction.date}</td>
+            <td>
+                <img onclick="Transaction.edit(${index})" src="./assets/edit.png" alt="Editar transação">
+            </td>
             <td>
                 <img onclick="Transaction.remove(${index})" src="./assets/minus.svg" alt="Remover transação">
             </td>
