@@ -6,8 +6,8 @@ const Modal = {
             .querySelector('.modal-overlay.simple')
             .classList
             .add('active')
-
     },
+
     openMult(){
         // Abrir modal mult
         // Adicionar a class active ao modal
@@ -15,8 +15,19 @@ const Modal = {
             .querySelector('.modal-overlay.mult')
             .classList
             .add('active')
-
     },
+    
+    openEdit(index){
+        // Abrir modal mult
+        // Adicionar a class active ao modal
+        transaction=Transaction.all[index]
+        Form.addInformationInForm(index, transaction)  
+        document
+            .querySelector('.modal-overlay.edit')
+            .classList
+            .add('active')
+    },
+
     close(){
         // fechar o modal
         // remover a class active do modal
@@ -62,8 +73,17 @@ const Transaction = {
                 localIndex++
             }
         }
+        App.reload()
+    },
 
-        //Transaction.all.push(transaction)
+    edit(transaction) {
+        indexOfTransaction=transaction.position
+        finalTransaction={
+            'description': transaction.description,
+            'amount': transaction.amount,
+            'date': transaction.date,
+        }
+        Transaction.all.splice(indexOfTransaction, 1, finalTransaction)
         App.reload()
     },
 
@@ -116,7 +136,8 @@ const DOM = {
             <td class="description">${transaction.description}</td>
             <td class="${CSSclass}">${amount}</td>
             <td class="date">${transaction.date}</td>
-            <td>
+            <td class="commands">
+                <img onclick="Modal.openEdit(${index})" src="./assets/edit.png" alt="Editar transação">
                 <img onclick="Transaction.remove(${index})" src="./assets/minus.svg" alt="Remover transação">
             </td>
         `
@@ -175,17 +196,24 @@ const Utils = {
     },
 
     checkDate(date, part){
+        
         monthBefore=Number(date[1])+part
-        yearToAdd=Math.floor(monthBefore/12)
+        
+        yearToAdd=Math.ceil(monthBefore/12)-1
+        
         monthAfter=monthBefore-(yearToAdd*12)-1
+        
         yearAfter=(date[2]*1)+yearToAdd
+        
 
         needCheckDate=true
         tryToCheck=0
 
         finalDate= new Date()
+        
         while (needCheckDate)
         {
+            
             finalDate.setFullYear(yearAfter, monthAfter, date[0]-tryToCheck);
     
             checkDay=finalDate.getDate()
@@ -197,6 +225,7 @@ const Utils = {
             }    
             tryToCheck=tryToCheck+1
         }
+        console.log(8)
 
         finalDay=String(date[0]-tryToCheck)
         finalMonth=String(monthAfter+1)
@@ -225,6 +254,11 @@ const Form = {
     amountM: document.querySelector('input#amountM'),
     dateM: document.querySelector('input#dateM'),
 
+    descriptionE: document.querySelector('input#descriptionE'),
+    positionE: document.querySelector('input#idE'),
+    amountE: document.querySelector('input#amountE'),
+    dateE: document.querySelector('input#dateE'),
+
     getValues(formType) {
         if (formType=='simple'){
             return {
@@ -241,6 +275,22 @@ const Form = {
                 date: Form.dateM.value
             }
         }
+        else if (formType=='edit') {
+            return {
+                description: Form.descriptionE.value,
+                position: Form.positionE.value,
+                amount: Form.amountE.value,
+                date: Form.dateE.value
+            }
+        }
+    },
+
+    addInformationInForm(index, transaction){
+        document.getElementById('idE').value=index;
+        document.getElementById('descriptionE').value=transaction.description;
+        document.getElementById('amountE').value=transaction.amount/100;
+        dateInParts=transaction.date.split("/")
+        document.getElementById('dateE').value=String(dateInParts[2]+'-'+dateInParts[1]+'-'+dateInParts[0])
     },
 
     validateFields(formType) {
@@ -259,6 +309,20 @@ const Form = {
             
             if( description.trim() === "" || 
                 part.trim() === "" || 
+                amount.trim() === "" || 
+                date.trim() === "" ) 
+            {
+                throw new Error("Por favor, preencha todos os campos")
+            }
+            if( part.trim()*1 < 1) 
+            {
+                throw new Error("Por favor, preencha no mínimo uma parcela")
+            }
+        }
+        else if (formType=='edit') {
+            const { description, position, amount, date } = Form.getValues(formType)
+            if( description.trim() === "" || 
+                position.trim() === "" || 
                 amount.trim() === "" || 
                 date.trim() === "" ) 
             {
@@ -297,6 +361,21 @@ const Form = {
             }
 
         }
+        else if (formType=='edit'){
+            let { description, position, amount, date } = Form.getValues(formType)
+            
+            position=Utils.formatInt(position)
+            amount = Utils.formatAmount(amount)
+            date = Utils.formatDate(date)
+
+            return {
+                description,
+                position,
+                amount,
+                date
+            }
+
+        }
     },
 
     clearFields() {
@@ -307,6 +386,10 @@ const Form = {
         Form.partM.value = ""
         Form.amountM.value = ""
         Form.dateM.value = ""
+        Form.descriptionE.value = ""
+        Form.positionE.value = ""
+        Form.amountE.value = ""
+        Form.dateE.value = ""
     },
 
     submit(event, formType) {
@@ -314,7 +397,12 @@ const Form = {
         try {
             Form.validateFields(formType)
             const transaction = Form.formatValues(formType)
-            Transaction.add(transaction, formType)
+            if (formType=='simple' || formType=='mult'){
+                Transaction.add(transaction, formType)
+            }
+            else if (formType=='edit'){
+                Transaction.edit(transaction)
+            }
             Form.clearFields()
             Modal.close()
         } catch (error) {

@@ -169,6 +169,12 @@ header {
     color: #969cb3;
 }
 
+#filter-table {
+    width: 100%;
+    border-spacing: 0 0.5rem;
+    color: #969cb3;
+}
+
 table thead tr th:first-child, 
 table tbody tr td:first-child
 {
@@ -212,6 +218,10 @@ td.income {
 
 td.expense {
     color: #e92929;
+}
+
+td.commands img{
+    padding-right: 1rem;
 }
 
 /* Modal ===================== */
