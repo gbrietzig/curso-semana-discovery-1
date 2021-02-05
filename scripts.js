@@ -51,7 +51,6 @@ const Storage = {
 const Transaction = {
     all: Storage.get(),
 
-    
     add(transaction, formType){
         if (formType=='simple'){
             Transaction.all.push(transaction)
@@ -74,8 +73,6 @@ const Transaction = {
                 localIndex++
             }
         }
-
-        //Transaction.all.push(transaction)
         App.reload()
     },
 
