@@ -6,7 +6,6 @@ const Modal = {
             .querySelector('.modal-overlay.simple')
             .classList
             .add('active')
-
     },
 
     openMult(){
@@ -18,9 +17,11 @@ const Modal = {
             .add('active')
     },
     
-    openEdit(){
+    openEdit(index){
         // Abrir modal mult
         // Adicionar a class active ao modal
+        transaction=Transaction.all[index]
+        Form.addInformationInForm(index, transaction)  
         document
             .querySelector('.modal-overlay.edit')
             .classList
@@ -75,11 +76,15 @@ const Transaction = {
         App.reload()
     },
 
-    edit(index) {
-        transaction=Transaction.all[index]
-        Modal.openEdit()
-        console.log(transaction)
-        //App.reload()
+    edit(transaction) {
+        indexOfTransaction=transaction.position
+        finalTransaction={
+            'description': transaction.description,
+            'amount': transaction.amount,
+            'date': transaction.date,
+        }
+        Transaction.all.splice(indexOfTransaction, 1, finalTransaction)
+        App.reload()
     },
 
     remove(index) {
@@ -132,7 +137,7 @@ const DOM = {
             <td class="${CSSclass}">${amount}</td>
             <td class="date">${transaction.date}</td>
             <td>
-                <img onclick="Transaction.edit(${index})" src="./assets/edit.png" alt="Editar transação">
+                <img onclick="Modal.openEdit(${index})" src="./assets/edit.png" alt="Editar transação">
             </td>
             <td>
                 <img onclick="Transaction.remove(${index})" src="./assets/minus.svg" alt="Remover transação">
@@ -251,6 +256,11 @@ const Form = {
     amountM: document.querySelector('input#amountM'),
     dateM: document.querySelector('input#dateM'),
 
+    descriptionE: document.querySelector('input#descriptionE'),
+    positionE: document.querySelector('input#idE'),
+    amountE: document.querySelector('input#amountE'),
+    dateE: document.querySelector('input#dateE'),
+
     getValues(formType) {
         if (formType=='simple'){
             return {
@@ -267,6 +277,22 @@ const Form = {
                 date: Form.dateM.value
             }
         }
+        else if (formType=='edit') {
+            return {
+                description: Form.descriptionE.value,
+                position: Form.positionE.value,
+                amount: Form.amountE.value,
+                date: Form.dateE.value
+            }
+        }
+    },
+
+    addInformationInForm(index, transaction){
+        document.getElementById('idE').value=index;
+        document.getElementById('descriptionE').value=transaction.description;
+        document.getElementById('amountE').value=transaction.amount/100;
+        dateInParts=transaction.date.split("/")
+        document.getElementById('dateE').value=String(dateInParts[2]+'-'+dateInParts[1]+'-'+dateInParts[0])
     },
 
     validateFields(formType) {
@@ -285,6 +311,20 @@ const Form = {
             
             if( description.trim() === "" || 
                 part.trim() === "" || 
+                amount.trim() === "" || 
+                date.trim() === "" ) 
+            {
+                throw new Error("Por favor, preencha todos os campos")
+            }
+            if( part.trim()*1 < 1) 
+            {
+                throw new Error("Por favor, preencha no mínimo uma parcela")
+            }
+        }
+        else if (formType=='edit') {
+            const { description, position, amount, date } = Form.getValues(formType)
+            if( description.trim() === "" || 
+                position.trim() === "" || 
                 amount.trim() === "" || 
                 date.trim() === "" ) 
             {
@@ -323,6 +363,21 @@ const Form = {
             }
 
         }
+        else if (formType=='edit'){
+            let { description, position, amount, date } = Form.getValues(formType)
+            
+            position=Utils.formatInt(position)
+            amount = Utils.formatAmount(amount)
+            date = Utils.formatDate(date)
+
+            return {
+                description,
+                position,
+                amount,
+                date
+            }
+
+        }
     },
 
     clearFields() {
@@ -333,6 +388,10 @@ const Form = {
         Form.partM.value = ""
         Form.amountM.value = ""
         Form.dateM.value = ""
+        Form.descriptionE.value = ""
+        Form.positionE.value = ""
+        Form.amountE.value = ""
+        Form.dateE.value = ""
     },
 
     submit(event, formType) {
@@ -340,7 +399,12 @@ const Form = {
         try {
             Form.validateFields(formType)
             const transaction = Form.formatValues(formType)
-            Transaction.add(transaction, formType)
+            if (formType=='simple' || formType=='mult'){
+                Transaction.add(transaction, formType)
+            }
+            else if (formType=='edit'){
+                Transaction.edit(transaction)
+            }
             Form.clearFields()
             Modal.close()
         } catch (error) {
