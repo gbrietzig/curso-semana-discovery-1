@@ -68,7 +68,7 @@
                             <th>Descrição</th>
                             <th>Valor</th>
                             <th>Data</th>
-                            <th><img onclick="" src="./assets/filtro.png" alt="Filtrar transações"></th>
+                            <th><img onclick="Modal.openFilter()" src="./assets/filtro.png" alt="Filtrar transações"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -272,6 +272,42 @@
                             href="#" 
                             class="button cancel">Cancelar</a>
                             <button>Salvar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay filter">
+            <div class="modal">
+                <div id="form">
+                    <h2>Filtro</h2>
+                    <form action="" onsubmit="Form.submit(event, 'edit')">
+                        <div class="input-group">
+                            <label 
+                                for="dateStart">Data Inicial:</label>
+                            <input 
+                                type="date" 
+                                id="dateStart" 
+                                name="dateStart"
+                            />
+                        </div>
+                        <div class="input-group">
+                            <label 
+                                for="dateEnd">Data Final</label>
+                            <input 
+                                type="date" 
+                                id="dateEnd" 
+                                name="dateEnd"
+                            />
+                        </div>
+
+                        <div class="input-group actions">
+                            <a 
+                            onclick="Modal.close()"
+                            href="#" 
+                            class="button cancel">Cancelar</a>
+                            <button>Filtrar</button>
                         </div>
                     </form>
                 </div>

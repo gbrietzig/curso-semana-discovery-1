@@ -163,16 +163,15 @@ header {
     width: 100%;
     overflow-x: auto;
 }
+
 #data-table {
     width: 100%;
     border-spacing: 0 0.5rem;
     color: #969cb3;
 }
 
-#filter-table {
-    width: 100%;
-    border-spacing: 0 0.5rem;
-    color: #969cb3;
+#data-table img:hover{
+    cursor: pointer;
 }
 
 table thead tr th:first-child, 

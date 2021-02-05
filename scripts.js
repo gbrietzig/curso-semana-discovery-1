@@ -27,6 +27,15 @@ const Modal = {
             .classList
             .add('active')
     },
+    
+    openFilter(){
+        // Abrir modal mult
+        // Adicionar a class active ao modal
+        document
+            .querySelector('.modal-overlay.filter')
+            .classList
+            .add('active')
+    },
 
     close(){
         // fechar o modal
@@ -241,6 +250,31 @@ const Utils = {
 
         lastDate=finalDay+'/'+finalMonth+'/'+finalYear
         return lastDate
+    },
+
+    checkFilterDate(dateCurrency, dateToCheck, question){
+        dateCurrencyInParts=dateCurrency.split("/")
+        dateToCheckInParts=dateToCheck.split("/")
+        internalFormatDateCurrency= new Date(dateCurrencyInParts[2],dateCurrencyInParts[1],dateCurrencyInParts[0])
+        internalFormatdateToCheck= new Date(dateToCheckInParts[2],dateToCheckInParts[1],dateToCheckInParts[0])
+        toReturn=dateCurrency
+        if ((question && internalFormatdateToCheck>internalFormatDateCurrency) || (question==false && internalFormatdateToCheck<internalFormatDateCurrency)){
+            toReturn=dateToCheck
+        }
+        return toReturn
+    },
+
+    checkTransactionDate(lowestDate, biggestDate, transactionDate){
+        lowestDateInParts=lowestDate.split("/")
+        biggestDateInParts=biggestDate.split("/")
+        transactionDateInParts=transactionDate.split("/")
+        internalFormatLowestDate= new Date(lowestDateInParts[2],lowestDateInParts[1],lowestDateInParts[0])
+        internalFormatBiggestDate= new Date(biggestDateInParts[2],biggestDateInParts[1],biggestDateInParts[0])
+        internalFormatTransactionDate= new Date(transactionDateInParts[2],transactionDateInParts[1],transactionDateInParts[0])
+        if (internalFormatTransactionDate>=internalFormatLowestDate && internalFormatTransactionDate<=internalFormatBiggestDate){
+            return true
+        }
+        return false
     }
 }
 
@@ -501,8 +535,41 @@ const calculations = {
 }
 
 const App = {
-    init() {
-        Transaction.all.forEach(DOM.addTransaction)
+    init(startDate, finalDate) {
+        transactions=Transaction.all
+        if (startDate=='' || finalDate=='') {
+            internalIndex=0
+            transactions.length
+            while (internalIndex<transactions.length){
+                if (startDate=='' || finalDate==''){
+                    startDate=transactions[internalIndex].date
+                    finalDate=transactions[internalIndex].date
+                }
+                else{
+                    startDate=Utils.checkFilterDate(startDate,transactions[internalIndex].date,false)
+                    finalDate=Utils.checkFilterDate(finalDate,transactions[internalIndex].date,true)
+                }
+                internalIndex++
+
+            }
+        }
+
+        transactionsToScreen=[]
+        internalIndex=0
+        transactions.length
+        while (internalIndex<transactions.length){
+            checkAdd=Utils.checkTransactionDate(startDate,finalDate,transactions[internalIndex].date)
+            if(checkAdd){
+                transactionsToScreen.push(transactions[internalIndex])
+            }
+            internalIndex++
+        }
+
+
+
+
+
+        transactionsToScreen.forEach(DOM.addTransaction)
         
         DOM.updateBalance()
 
@@ -515,11 +582,11 @@ const App = {
     },
     reload() {
         DOM.clearTransactions()
-        App.init()
+        App.init('','')
     },
 }
 
-App.init()
+App.init('','')
 
 function drawChart(graficsBig) {
     var data = new google.visualization.DataTable();
