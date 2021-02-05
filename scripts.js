@@ -101,9 +101,9 @@ const Transaction = {
         App.reload()
     },
 
-    incomes() {
+    incomes(transactionsToScreen) {
         let income = 0;
-        Transaction.all.forEach(transaction => {
+        transactionsToScreen.forEach(transaction => {
             if( transaction.amount > 0 ) {
                 income += transaction.amount;
             }
@@ -111,9 +111,9 @@ const Transaction = {
         return income;
     },
 
-    expenses() {
+    expenses(transactionsToScreen) {
         let expense = 0;
-        Transaction.all.forEach(transaction => {
+        transactionsToScreen.forEach(transaction => {
             if( transaction.amount < 0 ) {
                 expense += transaction.amount;
             }
@@ -121,8 +121,8 @@ const Transaction = {
         return expense;
     },
 
-    total() {
-        return Transaction.incomes() + Transaction.expenses();
+    total(transactionsToScreen) {
+        return Transaction.incomes(transactionsToScreen) + Transaction.expenses(transactionsToScreen);
     }
 }
 
@@ -154,16 +154,16 @@ const DOM = {
         return html
     },
 
-    updateBalance() {
+    updateBalance(transactionsToScreen) {
         document
             .getElementById('incomeDisplay')
-            .innerHTML = Utils.formatCurrency(Transaction.incomes())
+            .innerHTML = Utils.formatCurrency(Transaction.incomes(transactionsToScreen))
         document
             .getElementById('expenseDisplay')
-            .innerHTML = Utils.formatCurrency(Transaction.expenses())
+            .innerHTML = Utils.formatCurrency(Transaction.expenses(transactionsToScreen))
         document
             .getElementById('totalDisplay')
-            .innerHTML = Utils.formatCurrency(Transaction.total())
+            .innerHTML = Utils.formatCurrency(Transaction.total(transactionsToScreen))
     },
 
     clearTransactions() {
@@ -446,7 +446,7 @@ const Form = {
 }
 
 const calculations = { 
-    sumTransactions(){
+    sumTransactions(transactionsToScreen){
         // CRIA UMA NOVA LISTA
         sumIncome=[]
         sumExpense=[]
@@ -454,15 +454,15 @@ const calculations = {
 
         // PARAMETROS EXTERNOS
         indexCount = 0
-        lengthTransactions = Transaction.all.length
+        lengthTransactions = transactionsToScreen.length
         
         // PARA CADA TRANSAÇÃO
         while (indexCount<lengthTransactions) {
-            if (Transaction.all[indexCount].amount>=0){
-                sumIncome=calculations.checkInList(sumIncome, Transaction.all[indexCount].description, Transaction.all[indexCount].amount/100)
+            if (transactionsToScreen[indexCount].amount>=0){
+                sumIncome=calculations.checkInList(sumIncome, transactionsToScreen[indexCount].description, transactionsToScreen[indexCount].amount/100)
             }
             else{
-                sumExpense=calculations.checkInList(sumExpense, Transaction.all[indexCount].description, Transaction.all[indexCount].amount/100)
+                sumExpense=calculations.checkInList(sumExpense, transactionsToScreen[indexCount].description, transactionsToScreen[indexCount].amount/100)
             }
             indexCount++
         }
@@ -553,7 +553,6 @@ const App = {
 
             }
         }
-
         transactionsToScreen=[]
         internalIndex=0
         transactions.length
@@ -564,17 +563,14 @@ const App = {
             }
             internalIndex++
         }
-
-
-
-
-
-        transactionsToScreen.forEach(DOM.addTransaction)
-        
-        DOM.updateBalance()
-
+        transactionsToScreen.forEach(DOM.addTransaction)        
+        DOM.updateBalance(transactionsToScreen)
         Storage.set(Transaction.all)
-        sumIncomeExpense=calculations.sumTransactions()
+
+
+
+        
+        sumIncomeExpense=calculations.sumTransactions(transactionsToScreen)
         google.charts.load('current', {'packages':['corechart']});
         google.setOnLoadCallback(function() { drawChart(true); });
         google.setOnLoadCallback(function() { drawChart(false); });
@@ -586,6 +582,7 @@ const App = {
     },
 }
 
+//App.init('01/02/2021','10/02/2021')
 App.init('','')
 
 function drawChart(graficsBig) {
