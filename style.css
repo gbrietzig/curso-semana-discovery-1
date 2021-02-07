@@ -223,6 +223,19 @@ td.commands img{
     padding-right: 1rem;
 }
 
+table tfoot tr{
+    align-items: center;
+    text-align: center;
+    align-items: center;
+}
+
+.page{
+    color:#969cb3;
+    border-spacing: 0 0.5rem;
+    font-weight: bold;
+    float: center;
+}
+
 /* Modal ===================== */
 .modal-overlay {
     width: 100%;

@@ -73,6 +73,8 @@
                     </thead>
                     <tbody>
                     </tbody>
+                    <tfoot>
+                    </tfoot>
                 </table>
             </section>
 
@@ -174,6 +176,7 @@
                                 id="partM" 
                                 name="partM"
                                 placeholder="Parcelas"
+                                min=1
                             />
                             <small class="help">O número de parcelas irá se repetir ao longo dos meses no mesmo dia e mesmo valor.</small>
                         </div>
@@ -282,7 +285,7 @@
             <div class="modal">
                 <div id="form">
                     <h2>Filtro</h2>
-                    <form action="" onsubmit="Form.submit(event, 'edit')">
+                    <form action="" onsubmit="Form.submit(event, 'filter')">
                         <div class="input-group">
                             <label 
                                 for="dateStart">Data Inicial:</label>
@@ -299,6 +302,20 @@
                                 type="date" 
                                 id="dateEnd" 
                                 name="dateEnd"
+                            />
+                        </div>
+                        <hr>
+                        <div class="input-group">
+                            <label 
+                                for="partM">Itens por página</label>
+                            <input 
+                                type="number"
+                                step="1"
+                                id="itensPerPage" 
+                                name="itensPerPage"
+                                placeholder="Itens por página"
+                                value=15
+                                min="1"
                             />
                         </div>
 

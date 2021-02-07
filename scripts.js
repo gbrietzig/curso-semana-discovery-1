@@ -60,7 +60,7 @@ const Storage = {
 const Transaction = {
     all: Storage.get(),
 
-    add(transaction, formType){
+    add(transaction, formType, startDate, finalDate, limit, page){
         if (formType=='simple'){
             Transaction.all.push(transaction)
         }
@@ -82,10 +82,10 @@ const Transaction = {
                 localIndex++
             }
         }
-        App.reload()
+        App.reload(startDate, finalDate, limit, page)
     },
 
-    edit(transaction) {
+    edit(transaction, startDate, finalDate, limit, page) {
         indexOfTransaction=transaction.position
         finalTransaction={
             'description': transaction.description,
@@ -93,12 +93,12 @@ const Transaction = {
             'date': transaction.date,
         }
         Transaction.all.splice(indexOfTransaction, 1, finalTransaction)
-        App.reload()
+        App.reload(startDate, finalDate, limit, page)
     },
 
     remove(index) {
         Transaction.all.splice(index, 1)
-        App.reload()
+        App.reload('', '', 15, 1)
     },
 
     incomes(transactionsToScreen) {
@@ -128,12 +128,42 @@ const Transaction = {
 
 const DOM = {
     transactionsContainer: document.querySelector('#data-table tbody'),
+    footerContainer: document.querySelector('#data-table tfoot'),
 
     addTransaction(transaction, index) {
         const tr = document.createElement('tr')
         tr.innerHTML = DOM.innerHTMLTransaction(transaction, index)
         tr.dataset.index = index
         DOM.transactionsContainer.appendChild(tr)
+    },
+
+    addFooter(startDate, finalDate, limit, currencyPage, lastPage){
+        const tr = document.createElement('tr')
+        tr.innerHTML = DOM.innerHTMLTableFooter(startDate, finalDate, limit, currencyPage, lastPage)
+        DOM.footerContainer.appendChild(tr)
+
+    },
+
+    innerHTMLTableFooter(startDate, finalDate, limit, currencyPage, lastPage){
+        html = `<th colspan=4>`
+        backPage=currencyPage-1
+        nextPage=currencyPage+1
+
+
+        if (currencyPage==1){
+            html = html+`<< < `
+        }
+        else{
+            html = html+`<a href="#" onclick="App.reload(${startDate}, ${finalDate}, ${limit}, 1)"><<</a> <a href="#" onclick="App.reload(${startDate}, ${finalDate}, ${limit}, ${backPage})"><</a>`
+        }
+        html = html+` ${currencyPage} `
+        if (currencyPage==lastPage){
+            html = html+` > >>`
+        }
+        else{
+            html = html+`<a href="#" onclick="App.reload(${startDate}, ${finalDate}, ${limit}, ${nextPage})"><<</a> <a href="#" onclick="App.reload(${startDate}, ${finalDate}, ${limit}, ${lastPage})"><</a>`
+        }
+        return html
     },
 
     innerHTMLTransaction(transaction, index) {
@@ -168,6 +198,10 @@ const DOM = {
 
     clearTransactions() {
         DOM.transactionsContainer.innerHTML = ""
+    },
+
+    clearTableFooter() {
+        DOM.footerContainer.innerHTML = ""
     }
 }
 
@@ -268,9 +302,9 @@ const Utils = {
         lowestDateInParts=lowestDate.split("/")
         biggestDateInParts=biggestDate.split("/")
         transactionDateInParts=transactionDate.split("/")
-        internalFormatLowestDate= new Date(lowestDateInParts[2],lowestDateInParts[1],lowestDateInParts[0])
-        internalFormatBiggestDate= new Date(biggestDateInParts[2],biggestDateInParts[1],biggestDateInParts[0])
-        internalFormatTransactionDate= new Date(transactionDateInParts[2],transactionDateInParts[1],transactionDateInParts[0])
+        internalFormatLowestDate= new Date(lowestDateInParts[2],lowestDateInParts[1]-1,lowestDateInParts[0])
+        internalFormatBiggestDate= new Date(biggestDateInParts[2],biggestDateInParts[1]-1,biggestDateInParts[0])
+        internalFormatTransactionDate= new Date(transactionDateInParts[2],transactionDateInParts[1]-1,transactionDateInParts[0])
         if (internalFormatTransactionDate>=internalFormatLowestDate && internalFormatTransactionDate<=internalFormatBiggestDate){
             return true
         }
@@ -292,6 +326,11 @@ const Form = {
     positionE: document.querySelector('input#idE'),
     amountE: document.querySelector('input#amountE'),
     dateE: document.querySelector('input#dateE'),
+
+    dateStart: document.querySelector('input#dateStart'),
+    dateEnd: document.querySelector('input#dateEnd'),
+    itensPerPage: document.querySelector('input#itensPerPage'),
+
 
     getValues(formType) {
         if (formType=='simple'){
@@ -317,6 +356,13 @@ const Form = {
                 date: Form.dateE.value
             }
         }
+        else if (formType=='filter') {
+            return {
+                dateStart: Form.dateStart.value,
+                dateEnd: Form.dateEnd.value,
+                itensPerPage: Form.itensPerPage.value,
+            }
+        }
     },
 
     addInformationInForm(index, transaction){
@@ -325,6 +371,15 @@ const Form = {
         document.getElementById('amountE').value=transaction.amount/100;
         dateInParts=transaction.date.split("/")
         document.getElementById('dateE').value=String(dateInParts[2]+'-'+dateInParts[1]+'-'+dateInParts[0])
+    },
+
+    addInformationInFilterForm(startDate, finalDate, limit){
+
+        startDateInParts=startDate.split("/")
+        finalDateInParts=finalDate.split("/")
+        document.getElementById('dateStart').value=String(startDateInParts[2]+'-'+startDateInParts[1]+'-'+startDateInParts[0])
+        document.getElementById('dateEnd').value=String(finalDateInParts[2]+'-'+finalDateInParts[1]+'-'+finalDateInParts[0])
+        document.getElementById('itensPerPage').value=String(limit)
     },
 
     validateFields(formType) {
@@ -361,6 +416,19 @@ const Form = {
                 date.trim() === "" ) 
             {
                 throw new Error("Por favor, preencha todos os campos")
+            }
+        }
+        else if (formType=='filter') {
+            const { dateStart, dateEnd, itensPerPage} = Form.getValues(formType)
+            if( dateStart.trim() === "" || 
+                dateEnd.trim() === "" || 
+                itensPerPage.trim() === "") 
+            {
+                throw new Error("Por favor, preencha todos os campos")
+            }
+            if( dateStart.trim() > dateEnd.trim()) 
+            {
+                throw new Error("Por favor, preencha a data inicial com um valor inferior a data final")
             }
 
         }
@@ -408,7 +476,20 @@ const Form = {
                 amount,
                 date
             }
+        }
+        else if (formType=='filter'){
+            let { dateStart, dateEnd, itensPerPage} = Form.getValues(formType)
+            
+            amount = Utils.formatAmount(amount)
+            dateStart = Utils.formatDate(dateStart)
+            dateEnd = Utils.formatDate(dateEnd)
+            itensPerPage=Utils.formatInt(itensPerPage)
 
+            return {
+                dateStart,
+                dateEnd,
+                itensPerPage
+            }
         }
     },
 
@@ -432,17 +513,20 @@ const Form = {
             Form.validateFields(formType)
             const transaction = Form.formatValues(formType)
             if (formType=='simple' || formType=='mult'){
-                Transaction.add(transaction, formType)
+                Transaction.add(transaction, formType, startDate, finalDate, itensPerPage, page)
             }
             else if (formType=='edit'){
-                Transaction.edit(transaction)
+                Transaction.edit(transaction, startDate, finalDate, itensPerPage, page)
+            }
+            else if (formType=='filter'){
+                App.reload(transaction.dateStart,transaction.dateEnd, itensPerPage, page)
             }
             Form.clearFields()
             Modal.close()
         } catch (error) {
             alert(error.message)
         }
-    }
+    },
 }
 
 const calculations = { 
@@ -535,7 +619,7 @@ const calculations = {
 }
 
 const App = {
-    init(startDate, finalDate) {
+    init(startDate, finalDate, limit, page) {
         transactions=Transaction.all
         if (startDate=='' || finalDate=='') {
             internalIndex=0
@@ -563,27 +647,31 @@ const App = {
             }
             internalIndex++
         }
-        transactionsToScreen.forEach(DOM.addTransaction)        
+        Form.addInformationInFilterForm(startDate, finalDate, limit)
+
+        transactionsToScreen.slice(limit*(page-1),limit*page).forEach(DOM.addTransaction)  
+        lengthtransactionsToScreen=transactionsToScreen.length
+        lastPage=Math.ceil(lengthtransactionsToScreen/limit)
+        DOM.addFooter(startDate, finalDate, limit, page, lastPage)      
         DOM.updateBalance(transactionsToScreen)
         Storage.set(Transaction.all)
-
-
-
         
         sumIncomeExpense=calculations.sumTransactions(transactionsToScreen)
+        
+
         google.charts.load('current', {'packages':['corechart']});
         google.setOnLoadCallback(function() { drawChart(true); });
         google.setOnLoadCallback(function() { drawChart(false); });
         google.setOnLoadCallback(drawChartTotal);
     },
-    reload() {
+    reload(startDate, finalDate, limit, page) {
         DOM.clearTransactions()
-        App.init('','')
+        DOM.clearTableFooter()
+        App.init(startDate, finalDate, limit, page)
     },
 }
 
-//App.init('01/02/2021','10/02/2021')
-App.init('','')
+App.init('','', 15, 1)
 
 function drawChart(graficsBig) {
     var data = new google.visualization.DataTable();
