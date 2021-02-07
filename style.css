@@ -60,6 +60,10 @@ a:hover {
     text-decoration: underline ;
 }
 
+.page {
+    padding-right: 0;
+}
+
 button {
     width: 100%;
     height: 50px;
@@ -229,12 +233,6 @@ table tfoot tr{
     align-items: center;
 }
 
-.page{
-    color:#969cb3;
-    border-spacing: 0 0.5rem;
-    font-weight: bold;
-    float: center;
-}
 
 /* Modal ===================== */
 .modal-overlay {
