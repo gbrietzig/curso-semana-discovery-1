@@ -60,9 +60,11 @@ const Storage = {
 const Transaction = {
     all: Storage.get(),
     
-    add(transaction, formType, startDate, finalDate, limit, page){
+    add(transaction, formType){
+        finalTransaction=''
         if (formType=='simple'){
-            Transaction.all.push(transaction)
+            finalTransaction=transaction
+            Transaction.all.push(finalTransaction)
         }
         else if (formType=='mult'){
             localIndex=0
@@ -76,17 +78,27 @@ const Transaction = {
                     'amount': transaction.amount,
                     'date': finalDate
                 }
-                
                 Transaction.all.push(finalTransaction)
-
                 localIndex++
             }
         }
+        let { dateStart, dateEnd} = App.getDataFilter()
+        dateInParts=finalTransaction.date.split("/")
+        date=String(dateInParts[2]+'-'+dateInParts[1]+'-'+dateInParts[0])
+
         
-        App.reload(startDate, finalDate, limit, page)
+        checkFilter=Utils.checkTransactionDate(dateStart,dateEnd,date)
+        if (checkFilter==false){
+            dateStart=Utils.checkFilterDate(dateStart,date,false)
+            dateEnd=Utils.checkFilterDate(dateEnd,date,true)
+            document.getElementById('dateStart').value=String(dateStart)
+            document.getElementById('dateEnd').value=String(dateEnd)
+        }
+
+
     },
 
-    edit(transaction, startDate, finalDate, limit, page) {
+    edit(transaction) {
         indexOfTransaction=transaction.position
         finalTransaction={
             'description': transaction.description,
@@ -94,14 +106,15 @@ const Transaction = {
             'date': transaction.date,
         }
         Transaction.all.splice(indexOfTransaction, 1, finalTransaction)
+
         
-        App.reload(startDate, finalDate, limit, page)
+        
     },
 
     remove(index) {
         Transaction.all.splice(index, 1)
         
-        App.reload('', '', 15, 1)
+        App.init()
     },
 
     incomes(transactionsToScreen) {
@@ -140,31 +153,29 @@ const DOM = {
         DOM.transactionsContainer.appendChild(tr)
     },
 
-    addFooter(startDate, finalDate, limit, currencyPage, lastPage){
+    addFooter(currencyPage, lastPage){
         const tr = document.createElement('tr')
-        tr.innerHTML = DOM.innerHTMLTableFooter(startDate, finalDate, limit, currencyPage, lastPage)
+        tr.innerHTML = DOM.innerHTMLTableFooter(currencyPage, lastPage)
         DOM.footerContainer.appendChild(tr)
-
     },
 
-    innerHTMLTableFooter(startDate, finalDate, limit, currencyPage, lastPage){
+    innerHTMLTableFooter(currencyPage, lastPage){
         html = `<th colspan=4>`
         backPage=currencyPage-1
         nextPage=currencyPage+1
-
 
         if (currencyPage==1){
             html = html+`<< < `
         }
         else{
-            html = html+`<a class="page" href="#" onclick="App.reload(${startDate}, ${finalDate}, ${limit}, 1)"><<</a> <a class="page" href="#" onclick="App.reload(${startDate}, ${finalDate}, ${limit}, ${backPage})"><</a>`
+            html = html+`<a class="page" href="#" onclick="App.navigation(1)"><<</a> <a class="page" href="#" onclick="App.navigation(${backPage})"><</a>`
         }
         html = html+` ${currencyPage} `
         if (currencyPage==lastPage){
             html = html+` > >>`
         }
         else{
-            html = html+`<a class="page" href="#" onclick="App.reload(${startDate}, ${finalDate}, ${limit}, ${nextPage})">></a> <a class="page" href="#" onclick="App.reload(${startDate}, ${finalDate}, ${limit}, ${lastPage})">>></a>`
+            html = html+`<a class="page" href="#" onclick="App.navigation(${nextPage})">></a> <a class="page" href="#" onclick="App.navigation(${lastPage})">>></a>`
         }
         return html
     },
@@ -290,10 +301,10 @@ const Utils = {
     },
 
     checkFilterDate(dateCurrency, dateToCheck, question){
-        dateCurrencyInParts=dateCurrency.split("/")
-        dateToCheckInParts=dateToCheck.split("/")
-        internalFormatDateCurrency= new Date(dateCurrencyInParts[2],dateCurrencyInParts[1],dateCurrencyInParts[0])
-        internalFormatdateToCheck= new Date(dateToCheckInParts[2],dateToCheckInParts[1],dateToCheckInParts[0])
+        dateCurrencyInParts=dateCurrency.split("-")
+        dateToCheckInParts=dateToCheck.split("-")
+        internalFormatDateCurrency= new Date(dateCurrencyInParts[0],dateCurrencyInParts[1]-1,dateCurrencyInParts[2])
+        internalFormatdateToCheck= new Date(dateToCheckInParts[0],dateToCheckInParts[1]-1,dateToCheckInParts[2])
         toReturn=dateCurrency
         if ((question && internalFormatdateToCheck>internalFormatDateCurrency) || (question==false && internalFormatdateToCheck<internalFormatDateCurrency)){
             toReturn=dateToCheck
@@ -302,12 +313,12 @@ const Utils = {
     },
 
     checkTransactionDate(lowestDate, biggestDate, transactionDate){
-        lowestDateInParts=lowestDate.split("/")
-        biggestDateInParts=biggestDate.split("/")
-        transactionDateInParts=transactionDate.split("/")
-        internalFormatLowestDate= new Date(lowestDateInParts[2],lowestDateInParts[1]-1,lowestDateInParts[0])
-        internalFormatBiggestDate= new Date(biggestDateInParts[2],biggestDateInParts[1]-1,biggestDateInParts[0])
-        internalFormatTransactionDate= new Date(transactionDateInParts[2],transactionDateInParts[1]-1,transactionDateInParts[0])
+        lowestDateInParts=lowestDate.split("-")
+        biggestDateInParts=biggestDate.split("-")
+        transactionDateInParts=transactionDate.split("-")
+        internalFormatLowestDate= new Date(lowestDateInParts[0],lowestDateInParts[1]-1,lowestDateInParts[2])
+        internalFormatBiggestDate= new Date(biggestDateInParts[0],biggestDateInParts[1]-1,biggestDateInParts[2])
+        internalFormatTransactionDate= new Date(transactionDateInParts[0],transactionDateInParts[1]-1,transactionDateInParts[2])
         if (internalFormatTransactionDate>=internalFormatLowestDate && internalFormatTransactionDate<=internalFormatBiggestDate){
             return true
         }
@@ -334,7 +345,6 @@ const Form = {
     dateEnd: document.querySelector('input#dateEnd'),
     itensPerPage: document.querySelector('input#itensPerPage'),
     page: document.querySelector('input#page'),
-
 
     getValues(formType) {
         if (formType=='simple'){
@@ -379,11 +389,10 @@ const Form = {
     },
 
     addInformationInFilterForm(startDate, finalDate, limit, page){
-
-        startDateInParts=startDate.split("/")
-        finalDateInParts=finalDate.split("/")
-        document.getElementById('dateStart').value=String(startDateInParts[2]+'-'+startDateInParts[1]+'-'+startDateInParts[0])
-        document.getElementById('dateEnd').value=String(finalDateInParts[2]+'-'+finalDateInParts[1]+'-'+finalDateInParts[0])
+        startDateInParts=startDate.split("-")
+        finalDateInParts=finalDate.split("-")
+        document.getElementById('dateStart').value=String(startDateInParts[0]+'-'+startDateInParts[1]+'-'+startDateInParts[2])
+        document.getElementById('dateEnd').value=String(finalDateInParts[0]+'-'+finalDateInParts[1]+'-'+finalDateInParts[2])
         document.getElementById('itensPerPage').value=String(limit)
         document.getElementById('page').value=String(page)
     },
@@ -521,17 +530,14 @@ const Form = {
             const transaction = Form.formatValues(formType)
             
             if (formType=='simple' || formType=='mult'){
-                Transaction.add(transaction, formType, startDate, finalDate, itensPerPage, page)
+                Transaction.add(transaction, formType)
             }
             else if (formType=='edit'){
                 Transaction.edit(transaction, startDate, finalDate, itensPerPage, page)
             }
-            else if (formType=='filter'){
-        
-                App.reload(transaction.dateStart,transaction.dateEnd, transaction.itensPerPage, 1)
-            }
-            Form.clearFields()
             Modal.close()
+            Form.clearFields()
+            App.init()
         } catch (error) {
             alert(error.message)
         }
@@ -628,63 +634,132 @@ const calculations = {
 }
 
 const App = {
-    init(startDate, finalDate, limit, page) {
+    init() {
+        Storage.set(Transaction.all)
+        App.runningFilters()
+        page = App.getDataPage()
+        App.navigation(page)
+    },
+
+    navigation(page){
+        document.getElementById('page').value=String(page)
+        DOM.clearTransactions()
+        itensPerPage = App.getDataLimit()
+        transactions=App.itensToShow()
         
-        transactions=Transaction.all
-        if (startDate=='' || finalDate=='') {
-            internalIndex=0
-            transactions.length
-            while (internalIndex<transactions.length){
-                if (startDate=='' || finalDate==''){
-                    startDate=transactions[internalIndex].date
-                    finalDate=transactions[internalIndex].date
-                }
-                else{
-                    startDate=Utils.checkFilterDate(startDate,transactions[internalIndex].date,false)
-                    finalDate=Utils.checkFilterDate(finalDate,transactions[internalIndex].date,true)
-                }
-                internalIndex++
-            }
+        lengthTransactions=transactions.length
+        lastPage=Math.ceil(lengthTransactions/itensPerPage) 
+
+        if (page>lastPage){
+            page=lastPage
         }
 
+        initial=itensPerPage*(page-1)
+        final=itensPerPage*page
+
+        transactionsToScreen=transactions.slice(initial,final)
+        lengthTransactionsToScreen=transactionsToScreen.length
+
+        localIndex=0
+        while(localIndex<lengthTransactionsToScreen){
+            DOM.addTransaction(transactionsToScreen[localIndex],initial+localIndex)
+            localIndex++
+        }
+        DOM.clearTableFooter()
+        DOM.addFooter(page, lastPage)
+    },
+
+    itensToShow(){
+        transactions=Transaction.all
+        let { dateStart, dateEnd} = App.getDataFilter()
         transactionsToScreen=[]
         internalIndex=0
         transactions.length
         while (internalIndex<transactions.length){
-            checkAdd=Utils.checkTransactionDate(startDate,finalDate,transactions[internalIndex].date)
+            
+            dateInParts=transactions[internalIndex].date.split("/")
+            date=String(dateInParts[2]+'-'+dateInParts[1]+'-'+dateInParts[0])
+
+            checkAdd=Utils.checkTransactionDate(dateStart,dateEnd,date)
             if(checkAdd){
                 transactionsToScreen.push(transactions[internalIndex])
             }
             internalIndex++
         }
-
-        transactionsToScreen.slice(limit*(page-1),limit*page).forEach(DOM.addTransaction)  
-        lengthtransactionsToScreen=transactionsToScreen.length
-        lastPage=Math.ceil(lengthtransactionsToScreen/limit) 
-        Storage.set(Transaction.all)
                 
-        DOM.updateBalance(transactionsToScreen)
-        DOM.addFooter(startDate, finalDate, limit, page, lastPage)  
-        Form.addInformationInFilterForm(startDate, finalDate, limit, page)
+        DOM.updateBalance(transactionsToScreen)  
         
         sumIncomeExpense=calculations.sumTransactions(transactionsToScreen)
+        
 
         google.charts.load('current', {'packages':['corechart']});
         google.setOnLoadCallback(function() { drawChart(true); });
         google.setOnLoadCallback(function() { drawChart(false); });
         google.setOnLoadCallback(drawChartTotal);
+
+        return transactionsToScreen
     },
-    reload(startDate, finalDate, limit, page) {
-        DOM.clearTransactions()
-        DOM.clearTableFooter()
-        App.init(startDate, finalDate, limit, page)
-    },
-    itensToShow(transactions, limit, page){
+
+    runningFilters(){
+        transactions=Transaction.all
+        startDate= document.querySelector('input#dateStart').value
+        finalDate= document.querySelector('input#dateEnd').value
+        itensPerPage= Form.itensPerPage.value,
+        page= Form.page.value
+        if (startDate=='' || finalDate=='') {
+            internalIndex=0
+            transactions.length
+            while (internalIndex<transactions.length){
+                if (startDate=='' || finalDate==''){
+                    startDateInParts=transactions[internalIndex].date.split("/")
+                    startDate=String(startDateInParts[2]+'-'+startDateInParts[1]+'-'+startDateInParts[0])
+                    finalDateInParts=transactions[internalIndex].date.split("/")
+                    finalDate=String(finalDateInParts[2]+'-'+finalDateInParts[1]+'-'+finalDateInParts[0])
+                }
+                else{
+                    transactionDateInParts=transactions[internalIndex].date.split("/")
+                    transactionDate=String(transactionDateInParts[2]+'-'+transactionDateInParts[1]+'-'+transactionDateInParts[0])
+                    startDate=Utils.checkFilterDate(startDate,transactionDate,false)
+                    finalDate=Utils.checkFilterDate(finalDate,transactionDate,true)
+                }
+                internalIndex++
+            }
+        }
         
+        if (itensPerPage=='') {
+            itensPerPage=15
+        }
+        
+        if (page=='') {
+            page=1
+        }
+        
+        Form.addInformationInFilterForm(startDate, finalDate, itensPerPage, page)
+    },
+
+    getDataFilter(){
+        dateStart= document.querySelector('input#dateStart').value,
+        dateEnd= document.querySelector('input#dateEnd').value
+        return {
+            dateStart,
+            dateEnd
+        }
+    },
+
+    getDataLimit(){
+        itensPerPage= document.querySelector('input#itensPerPage').value
+        return itensPerPage
+    },
+
+    getDataPage(){
+        page= document.querySelector('input#page').value
+        return page
     }
+
+    
 }
 
-App.init('','', 3, 1)
+App.init()
 
 function drawChart(graficsBig) {
     var data = new google.visualization.DataTable();
