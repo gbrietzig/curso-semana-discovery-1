@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>dev.finance$</title>
+        <title>dev.finance$ - By GBrietzig</title>
 
         <link rel="stylesheet" href="./style.css">
         <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -68,12 +68,13 @@
                             <th>Descrição</th>
                             <th>Valor</th>
                             <th>Data</th>
-                            <th></th>
-                            <th></th>
+                            <th><img onclick="Modal.openFilter()" src="./assets/filtro.png" alt="Filtrar transações"></th>
                         </tr>
                     </thead>
                     <tbody>
                     </tbody>
+                    <tfoot>
+                    </tfoot>
                 </table>
             </section>
 
@@ -175,6 +176,7 @@
                                 id="partM" 
                                 name="partM"
                                 placeholder="Parcelas"
+                                min=1
                             />
                             <small class="help">O número de parcelas irá se repetir ao longo dos meses no mesmo dia e mesmo valor.</small>
                         </div>
@@ -233,9 +235,10 @@
                             />
                         </div>
 
-                        <div class="input-edit">
+                        <div class="input-group">
                             <input 
-                                type="text"
+                                class="sr-only"
+                                type="number"
                                 id="idE" 
                                 name="idE"
                             />
@@ -272,6 +275,64 @@
                             href="#" 
                             class="button cancel">Cancelar</a>
                             <button>Salvar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay filter">
+            <div class="modal">
+                <div id="form">
+                    <h2>Filtro</h2>
+                    <form action="" onsubmit="Form.submit(event, 'filter')">
+                        <div class="input-group">
+                            <label 
+                                for="dateStart">Data Inicial:</label>
+                            <input 
+                                type="date" 
+                                id="dateStart" 
+                                name="dateStart"
+                            />
+                        </div>
+                        <div class="input-group">
+                            <label 
+                                for="dateEnd">Data Final</label>
+                            <input 
+                                type="date" 
+                                id="dateEnd" 
+                                name="dateEnd"
+                            />
+                        </div>
+                        <hr>
+                        <div class="input-group">
+                            <label 
+                                for="partM">Itens por página</label>
+                            <input 
+                                type="number"
+                                step="1"
+                                id="itensPerPage" 
+                                name="itensPerPage"
+                                placeholder="Itens por página"
+                                min="1"
+                            />
+                        </div>
+
+                        <div class="input-group actions">
+                            <a 
+                            onclick="Modal.close()"
+                            href="#" 
+                            class="button cancel">Cancelar</a>
+                            <button>Filtrar</button>
+                        </div>
+
+                        <div class="input-group">
+                            <input 
+                                class="sr-only"
+                                type="number"
+                                id="page" 
+                                name="page"
+                            />
                         </div>
                     </form>
                 </div>

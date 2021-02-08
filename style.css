@@ -60,6 +60,10 @@ a:hover {
     text-decoration: underline ;
 }
 
+.page {
+    padding-right: 0;
+}
+
 button {
     width: 100%;
     height: 50px;
@@ -163,10 +167,15 @@ header {
     width: 100%;
     overflow-x: auto;
 }
+
 #data-table {
     width: 100%;
     border-spacing: 0 0.5rem;
     color: #969cb3;
+}
+
+#data-table img:hover{
+    cursor: pointer;
 }
 
 table thead tr th:first-child, 
@@ -213,6 +222,17 @@ td.income {
 td.expense {
     color: #e92929;
 }
+
+td.commands img{
+    padding-right: 1rem;
+}
+
+table tfoot tr{
+    align-items: center;
+    text-align: center;
+    align-items: center;
+}
+
 
 /* Modal ===================== */
 .modal-overlay {
