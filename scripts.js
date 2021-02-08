@@ -164,7 +164,7 @@ const DOM = {
         backPage=currencyPage-1
         nextPage=currencyPage+1
 
-        if (currencyPage==1){
+        if (currencyPage<2){
             html = html+`<< < `
         }
         else{
@@ -756,7 +756,6 @@ const App = {
         return page
     }
 
-    
 }
 
 App.init()
