@@ -290,6 +290,13 @@ input {
     margin-top: 0.8rem;
 }
 
+.input-edit {
+    position: fixed;
+    top: 0;
+    visibility: hidden;
+    opacity: 0;
+}
+
 .input-group .help{
     opacity: 0.4;
 }
