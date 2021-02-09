@@ -346,38 +346,33 @@ const Form = {
     itensPerPage: document.querySelector('input#itensPerPage'),
     page: document.querySelector('input#page'),
 
-    getValues(formType) {
-        if (formType=='simple'){
-            return {
+    getValues(value){
+        const options ={
+            simple:{
                 description: Form.description.value,
                 amount: Form.amount.value,
                 date: Form.date.value
-            }
-        }
-        else if (formType=='mult') {
-            return {
+            },
+            mult: {
                 description: Form.descriptionM.value,
                 part: Form.partM.value,
                 amount: Form.amountM.value,
                 date: Form.dateM.value
-            }
-        }
-        else if (formType=='edit') {
-            return {
+            },
+            edit: {
                 description: Form.descriptionE.value,
                 position: Form.positionE.value,
                 amount: Form.amountE.value,
                 date: Form.dateE.value
-            }
-        }
-        else if (formType=='filter') {
-            return {
+            },
+            filter: {
                 dateStart: Form.dateStart.value,
                 dateEnd: Form.dateEnd.value,
                 itensPerPage: Form.itensPerPage.value,
                 page: Form.page.value
             }
         }
+        return options[value]
     },
 
     addInformationInForm(index, transaction){
