@@ -55,11 +55,11 @@
                 <h2 class="sr-only">Transações</h2>
 
                 <a href="#" 
-                onclick="Modal.openSimple()"
+                onclick="Modal.open('simple')"
                 class="button new">+ Nova Transação</a>
                 
                 <a href="#" 
-                onclick="Modal.openMult()"
+                onclick="Modal.open('installments')"
                 class="button new">+ Nova Transação Parcelada</a>
                 
                 <table id="data-table">
@@ -68,7 +68,7 @@
                             <th>Descrição</th>
                             <th>Valor</th>
                             <th>Data</th>
-                            <th><img onclick="Modal.openFilter()" src="./assets/filtro.png" alt="Filtrar transações"></th>
+                            <th><img onclick="Modal.open('filter')" src="./assets/filtro.png" alt="Filtrar transações"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -95,11 +95,11 @@
             </section>
         </main>
 
-        <div class="modal-overlay simple">
+        <div class="modal-overlay transaction">
             <div class="modal">
                 <div id="form">
                     <h2>Nova Transação</h2>
-                    <form action="" onsubmit="Form.submit(event, 'simple')">
+                    <form action="" onsubmit="Form.submit(event, 'installments')">
                         <div class="input-group">
                             <label 
                                 class="sr-only" 
@@ -115,6 +115,20 @@
                         <div class="input-group">
                             <label 
                                 class="sr-only" 
+                                for="installments">Parcelas</label>
+                            <input 
+                                type="number"
+                                step="1"
+                                id="installments" 
+                                name="installments"
+                                placeholder="Parcelas"
+                            />
+                            <small class="help">O número de parcelas irá se repetir ao longo dos meses no mesmo dia e mesmo valor.</small>
+                        </div>
+
+                        <div class="input-group">
+                            <label 
+                                class="sr-only" 
                                 for="amount">Valor</label>
                             <input 
                                 type="number"
@@ -123,7 +137,7 @@
                                 name="amount"
                                 placeholder="0,00"
                             />
-                            <small class="help">Use o sinal - (negativo) para despesas e , (vírgula) para casas decimais</small>
+                            <small class="help">Use o sinal - (negativo) para despesas e , (vírgula) para casas decimais.</small>
                         </div>
 
                         <div class="input-group">
@@ -136,139 +150,14 @@
                                 name="date"
                             />
                         </div>
-
-                        <div class="input-group actions">
-                            <a 
-                            onclick="Modal.close()"
-                            href="#" 
-                            class="button cancel">Cancelar</a>
-                            <button>Salvar</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal-overlay mult">
-            <div class="modal">
-                <div id="form">
-                    <h2>Nova Transação Parcelada</h2>
-                    <form action="" onsubmit="Form.submit(event, 'mult')">
-                        <div class="input-group">
-                            <label 
-                                class="sr-only" 
-                                for="descriptionM">Descrição</label>
-                            <input 
-                                type="text" 
-                                id="descriptionM" 
-                                name="descriptionM"
-                                placeholder="Descrição"
-                            />
-                        </div>
-
-                        <div class="input-group">
-                            <label 
-                                class="sr-only" 
-                                for="partM">Parcelas</label>
-                            <input 
-                                type="number"
-                                step="1"
-                                id="partM" 
-                                name="partM"
-                                placeholder="Parcelas"
-                                min=1
-                            />
-                            <small class="help">O número de parcelas irá se repetir ao longo dos meses no mesmo dia e mesmo valor.</small>
-                        </div>
-
-                        <div class="input-group">
-                            <label 
-                                class="sr-only" 
-                                for="amountM">Valor</label>
-                            <input 
-                                type="number"
-                                step="0.01"
-                                id="amountM" 
-                                name="amountM"
-                                placeholder="0,00"
-                            />
-                            <small class="help">Use o sinal - (negativo) para despesas e , (vírgula) para casas decimais.</small>
-                        </div>
-
-                        <div class="input-group">
-                            <label 
-                                class="sr-only" 
-                                for="dateM">Data</label>
-                            <input 
-                                type="date" 
-                                id="dateM" 
-                                name="dateM"
-                            />
-                        </div>
-
-                        <div class="input-group actions">
-                            <a 
-                            onclick="Modal.close()"
-                            href="#" 
-                            class="button cancel">Cancelar</a>
-                            <button>Salvar</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal-overlay edit">
-            <div class="modal">
-                <div id="form">
-                    <h2>Editar Transação</h2>
-                    <form action="" onsubmit="Form.submit(event, 'edit')">
-                        <div class="input-group">
-                            <label 
-                                class="sr-only" 
-                                for="descriptionE">Descrição</label>
-                            <input 
-                                type="text" 
-                                id="descriptionE" 
-                                name="descriptionE"
-                                placeholder="Descrição"
-                            />
-                        </div>
-
                         <div class="input-group">
                             <input 
                                 class="sr-only"
                                 type="number"
-                                id="idE" 
-                                name="idE"
+                                id="index" 
+                                name="index"
                             />
                         </div>
-
-                        <div class="input-group">
-                            <label 
-                                class="sr-only" 
-                                for="amountE">Valor</label>
-                            <input 
-                                type="number"
-                                step="0.01"
-                                id="amountE" 
-                                name="amountE"
-                                placeholder="0,00"
-                            />
-                            <small class="help">Use o sinal - (negativo) para despesas e , (vírgula) para casas decimais.</small>
-                        </div>
-
-                        <div class="input-group">
-                            <label 
-                                class="sr-only" 
-                                for="dateE">Data</label>
-                            <input 
-                                type="date" 
-                                id="dateE" 
-                                name="dateE"
-                            />
-                        </div>
-
                         <div class="input-group actions">
                             <a 
                             onclick="Modal.close()"
@@ -288,20 +177,20 @@
                     <form action="" onsubmit="Form.submit(event, 'filter')">
                         <div class="input-group">
                             <label 
-                                for="dateStart">Data Inicial:</label>
+                                for="startDate">Data Inicial:</label>
                             <input 
                                 type="date" 
-                                id="dateStart" 
-                                name="dateStart"
+                                id="startDate" 
+                                name="startDate"
                             />
                         </div>
                         <div class="input-group">
                             <label 
-                                for="dateEnd">Data Final</label>
+                                for="finalDate">Data Final</label>
                             <input 
                                 type="date" 
-                                id="dateEnd" 
-                                name="dateEnd"
+                                id="finalDate" 
+                                name="finalDate"
                             />
                         </div>
                         <hr>
@@ -313,7 +202,6 @@
                                 step="1"
                                 id="itensPerPage" 
                                 name="itensPerPage"
-                                placeholder="Itens por página"
                                 min="1"
                             />
                         </div>
@@ -324,15 +212,6 @@
                             href="#" 
                             class="button cancel">Cancelar</a>
                             <button>Filtrar</button>
-                        </div>
-
-                        <div class="input-group">
-                            <input 
-                                class="sr-only"
-                                type="number"
-                                id="page" 
-                                name="page"
-                            />
                         </div>
                     </form>
                 </div>
