@@ -9,20 +9,12 @@ const Modal = {
                 .add('active')
         }
         else if (formType=='filter'){
+            Form.formValues(formType, index)
             document
                 .querySelector('.modal-overlay.filter')
                 .classList
                 .add('active')
         }
-
-    },
-    
-    openEdit(index){
-        transaction=Transaction.all[index]  
-        document
-            .querySelector('.modal-overlay.edit')
-            .classList
-            .add('active')
     },
 
     close(){
@@ -68,8 +60,9 @@ const Transaction = {
     all: Storage.get('transaction'),
     
     add(transaction){
-        
         indexAdd=0
+        firstTransaction=''
+        lastTransaction=''
         while (indexAdd<transaction.installments){
             if(Transaction.all.length==0){
                 transaction.index=1
@@ -77,9 +70,21 @@ const Transaction = {
             else{
                 transaction.index=lastIndex=Transaction.all[Transaction.all.length-1].index+1
             }
-            transaction.installment=indexAdd+1
-            transaction.date=Utils.checkDate(transaction.date,indexAdd)
-            Transaction.all.push(transaction)
+            correctTransaction={
+                "description": transaction.description,
+                "installments": transaction.installments,
+                "amount": transaction.amount,
+                "date": Utils.checkDate(transaction.date,indexAdd),
+                "index": transaction.index,
+                "installment": transaction.installment=indexAdd+1
+            }
+            Transaction.all.push(correctTransaction)
+            if (indexAdd+1==1){
+                firstTransaction=correctTransaction
+            }
+            else if(indexAdd+1==transaction.installments){
+                lastTransaction=correctTransaction
+            }
             indexAdd++
         }
         return Transaction.all
@@ -87,22 +92,38 @@ const Transaction = {
     },
 
     edit(transaction) {
-        indexOfTransaction=transaction.position
-        finalTransaction={
-            'description': transaction.description,
-            'amount': transaction.amount,
-            'date': transaction.date,
-        }
-        Transaction.all.splice(indexOfTransaction, 1, finalTransaction)
-
-        
-        
+        indexPosition=Transaction.selectIndexPosition(transaction)
+        transaction.installment=Transaction.all[indexPosition].installment
+        Transaction.all.splice(indexPosition, 1, transaction)
+        return Transaction.all
     },
 
-    remove(index) {
-        Transaction.all.splice(index, 1)
-        
-        App.init()
+    remove(indexTransaction) {
+        transaction=Transaction.select(indexTransaction)
+        indexPosition=Transaction.selectIndexPosition(transaction)
+        Transaction.all.splice(indexPosition, 1)
+        Storage.set('transaction', Transaction.all)
+        App.init(false)
+    },
+
+    select(indexTransaction){
+        indexSelect=0
+        while(indexSelect<Transaction.all.length){
+            if(Transaction.all[indexSelect].index==indexTransaction){
+                return Transaction.all[indexSelect]
+            }
+            indexSelect++
+        }
+    },
+
+    selectIndexPosition(transaction){
+        indexSelect=0
+        while(indexSelect<Transaction.all.length){
+            if(Transaction.all[indexSelect].index==transaction.index){
+                return indexSelect
+            }
+            indexSelect++
+        }
     },
 
     incomes(transactionsToScreen) {
@@ -131,16 +152,18 @@ const Transaction = {
 }
 
 const Filter = {
-    filter: Storage.get('filter'),
-
     add(filter){
         Storage.set('filter', filter) 
-
     },
 
     update(filter){
         Storage.delete('filter')
         Storage.set('filter', filter) 
+    },
+
+    select(){
+        filter=Storage.get('filter')
+        return filter
     },
 }
 
@@ -148,11 +171,33 @@ const DOM = {
     transactionsContainer: document.querySelector('#data-table tbody'),
     footerContainer: document.querySelector('#data-table tfoot'),
 
-    addTransaction(transaction, index) {
+    addTransaction(transaction) {
         const tr = document.createElement('tr')
-        tr.innerHTML = DOM.innerHTMLTransaction(transaction, index)
-        tr.dataset.index = index
+        tr.innerHTML = DOM.innerHTMLTransaction(transaction)
         DOM.transactionsContainer.appendChild(tr)
+    },
+
+    innerHTMLTransaction(transaction) {
+        const CSSclass = transaction.amount > 0 ? "income" : "expense"
+
+        const amount = Utils.formatCurrency(transaction.amount)
+        const date = Utils.formatDate(transaction.date)
+        description=transaction.description
+        if (transaction.installments>1){
+            description=description+' P. '+transaction.installment+'/'+transaction.installments
+        }
+
+        const html = `
+            <td class="description">${description}</td>
+            <td class="${CSSclass}">${amount}</td>
+            <td class="date">${date}</td>
+            <td class="commands">
+                <img onclick="Modal.open('edit', ${transaction.index})" src="./assets/edit.png" alt="Editar transação">
+                <img onclick="Transaction.remove(${transaction.index})" src="./assets/minus.svg" alt="Remover transação">
+            </td>
+        `
+
+        return html
     },
 
     addFooter(currencyPage, lastPage){
@@ -179,25 +224,6 @@ const DOM = {
         else{
             html = html+`<a class="page" href="#" onclick="App.navigation(${nextPage})">></a> <a class="page" href="#" onclick="App.navigation(${lastPage})">>></a>`
         }
-        return html
-    },
-
-    innerHTMLTransaction(transaction, index) {
-        const CSSclass = transaction.amount > 0 ? "income" : "expense"
-
-        const amount = Utils.formatCurrency(transaction.amount)
-        const date = Utils.formatDate(transaction.date)
-
-        const html = `
-            <td class="description">${transaction.description}</td>
-            <td class="${CSSclass}">${amount}</td>
-            <td class="date">${date}</td>
-            <td class="commands">
-                <img onclick="Modal.openEdit(${index})" src="./assets/edit.png" alt="Editar transação">
-                <img onclick="Transaction.remove(${index})" src="./assets/minus.svg" alt="Remover transação">
-            </td>
-        `
-
         return html
     },
 
@@ -252,41 +278,46 @@ const Utils = {
 
     checkDate(date, index){
         dateInParts=date.split("-")
+        originalDay=Number(dateInParts[2])
         originalMonth=Number(dateInParts[1])
+        originalYear=Number(dateInParts[0])
         monthPlusIndex=originalMonth+index
         insertYear=Math.ceil(monthPlusIndex/12)-1
         correctMonth=monthPlusIndex-(insertYear*12)
-        correctYear=dateInParts[0]+insertYear
+        correctYear=originalYear+insertYear
+        internalMonth=correctMonth-1
 
-        needCheckDate=true
         tryToCheck=0
         finalDate= new Date()
+        checkDay=''
+        checkMonth=''
+        checkYear=''
         
-        while (needCheckDate)
+        while (true)
         {
-            finalDate.setFullYear(correctYear, correctMonth-1, dateInParts[2]-tryToCheck);
+            finalDate.setFullYear(correctYear, internalMonth, originalDay-tryToCheck);
             checkDay=finalDate.getDate()
             checkMonth=finalDate.getMonth()
             checkYear=finalDate.getFullYear()
-            if ((dateInParts[2]-tryToCheck==checkDay) && (correctMonth-1==checkMonth) && (correctYear==checkYear)){
+            if ((originalDay-tryToCheck) && (internalMonth==checkMonth) && (correctYear==checkYear)){
+                checkMonth=checkMonth+1
                 break
             }    
             tryToCheck=tryToCheck+1
         }
-
-        correctDay=finalDate.getDate()
-        if(correctDay.length<2){
-            correctDay='0'+correctDay
+        while(String(checkDay).length<2){
+            checkDay='0'+String(checkDay)
         }
         
-        correctMonth=finalDate.getMonth()+1
-        if(correctMonth.length<2){
-            correctMonth='0'+correctMonth
+        while(String(checkMonth).length<2){
+            checkMonth='0'+String(checkMonth)
         }
         
-        correctYear=finalDate.getFullYear()
+        while(String(checkYear).length<4){
+            checkYear='0'+String(checkYear)
+        }
 
-        return correctYear+'-'+correctMonth+'-'+correctDay
+        return checkYear+'-'+checkMonth+'-'+checkDay
     },
 
     checkFilterDate(dateCurrency, dateToCheck, question){
@@ -346,16 +377,24 @@ const Form = {
     formValues(formType, index){
         if(formType=='simple'){
             document.getElementById('installments').value=String(1)
+            document.getElementById('title').innerHTML='Nova transação'
+        }
+        else if(formType=='installments'){
+            document.getElementById('installments').value=String(2)
+            document.getElementById('title').innerHTML='Nova transação parcelada'
         }
         else if(formType=='edit' || formType=='view'){
-            document.getElementById('description').value=String(1)
-            document.getElementById('installments').value=String(1)
-            document.getElementById('amount').value=String(1)
-            document.getElementById('date').value=String(1)
-            document.getElementById('index').value=String(1)
+            transaction=Transaction.select(index)
+            document.getElementById('description').value=transaction.description
+            document.getElementById('installments').value=transaction.installments
+            document.getElementById('amount').value=transaction.amount/100
+            document.getElementById('date').value=transaction.date
+            document.getElementById('index').value=transaction.index
+            document.getElementById('title').innerHTML='Editar transação'
         }
         else if(formType=='filter'){
-            filter=Filter.filter
+            filter=Filter.select()
+
             document.getElementById('startDate').value=String(filter.startDate)
             document.getElementById('finalDate').value=String(filter.finalDate)
             document.getElementById('itensPerPage').value=String(filter.itensPerPage)
@@ -363,7 +402,7 @@ const Form = {
     },
 
     getValues(formType){
-        if (formType=='simple' || formType=='installments' || formType=='edit'){
+        if (formType=='transaction'){
             return {
                 description: Form.description.value,
                 installments: Form.installments.value,
@@ -382,7 +421,7 @@ const Form = {
     },
 
     validateFields(formType) {
-        if (formType=='simple' || formType=='installments' || formType=='edit'){
+        if (formType=='transaction'){
             const { description, installments, amount, date, index } = Form.getValues(formType)    
             if( description.trim() === "" || 
                 installments.trim() === "" || 
@@ -394,7 +433,6 @@ const Form = {
         }
         else if (formType=='filter') {
             const { startDate, finalDate} = Form.getValues(formType)
-
             if (startDate!='' && finalDate!='' && startDate>finalDate){
                 throw new Error("Por favor, a data final deve ser superior a data inicial.")
             }
@@ -402,7 +440,7 @@ const Form = {
     },
 
     formatValues(formType) {
-        if (formType=='simple' || formType=='installments' || formType=='edit'){
+        if (formType=='transaction'){
             let {  description, installments, amount, date, index } = Form.getValues(formType)
             
             installments=Utils.formatInt(installments)
@@ -418,14 +456,14 @@ const Form = {
 
         }
         else if (formType=='filter'){
-            let { dateStart, dateEnd, itensPerPage} = Form.getValues(formType)
+            let { startDate, finalDate, itensPerPage} = Form.getValues(formType)
 
             itensPerPage=Utils.formatInt(itensPerPage)
 
             return {
-                dateStart,
-                dateEnd,
-                itensPerPage,
+                startDate,
+                finalDate,
+                itensPerPage
             }
         }
     },
@@ -447,29 +485,38 @@ const Form = {
         try {
             Form.validateFields(formType)
             const form = Form.formatValues(formType)
-            if (formType=='simple' || formType=='installments' || formType=='edit'){
-                transactions=Transaction.add(form)
+            Modal.close()
+            if (formType=='transaction'){
+                transactions=''
+                newSession=false
+                if(Form.index.value==''){
+                    transactions=Transaction.add(form)
+                    newSession=true
+                }
+                else{
+                    transactions=Transaction.edit(form)
+                    newSession=false
+                }
                 Storage.set('transaction', transactions)
+                App.init(newSession)
+
             }
             else if (formType=='filter'){
-                filter=Filter.filter
+                filter=Filter.select()
                 filter={
-                    'startDate': startDate,
-                    'finalDate': finalDate,
-                    'itensPerPage': itensPerPage,
-                    'page':filter.page
+                    'startDate': form.startDate,
+                    'finalDate': form.finalDate,
+                    'itensPerPage': form.itensPerPage,
+                    'page': filter.page,
                 }
                 Filter.update(filter)
+                App.init(false)
             }
 
-            Modal.close()
-            Form.clearFields()
-            App.init()
         } catch (error) {
             alert(error.message)
         }
     },
-
 }
 
 const Calculations = { 
@@ -552,7 +599,7 @@ const Calculations = {
 
 const App = {
     init(newSession) {
-        filter=Filter.filter
+        filter=Filter.select()
         newFilter={
             'startDate': '',
             'finalDate': '',
@@ -561,23 +608,24 @@ const App = {
         }
         if (newSession || filter.length==0 ){
             Filter.update(newFilter)
-            filter=Filter.filter
         }
-        App.navigation()
+        filter=Filter.select()
+        App.navigation(filter.page)
     },
 
-    navigation(){
-        filter=Filter.filter
-        
+    navigation(page){
+        filter=Filter.select()
         //calling the transactions in side of filter
         transactions=App.transactionsIntoTheFilter(filter.startDate, filter.finalDate)
-
         //check the pages and update the filter
         lastPage=Math.ceil(transactions.length/filter.itensPerPage)
-        if (filter.page>lastPage){
-            filter.page=lastPage
+        
+        if (page>lastPage){
+            page=lastPage
         }
+        filter.page=page
         Filter.update(filter)
+        filter=Filter.select()
 
         //checking the itens to the user's page
         startTransation=filter.itensPerPage*(filter.page-1)
@@ -593,14 +641,14 @@ const App = {
         //working to show the informations
         indexToPage=0
         while(indexToPage<transactionsToPage.length){
-            DOM.addTransaction(transactionsToPage[indexToPage],startTransation+indexToPage)
+            DOM.addTransaction(transactionsToPage[indexToPage])
             indexToPage++
         }
         DOM.addFooter(filter.page, lastPage)
     },
 
     transactionsIntoTheFilter(){
-        filter=Filter.filter
+        filter=Filter.select()
 
         //all transactions
         transactions=Transaction.all
@@ -609,7 +657,7 @@ const App = {
         transactionsIntoTheFilter=[]
         transactionIndex=0
         while (transactionIndex<transactions.length){
-            if(Utils.checkTransactionDate(startDate,finalDate,date)){
+            if(Utils.checkTransactionDate(filter.startDate,filter.finalDate,transactions[transactionIndex].date)){
                 transactionsIntoTheFilter.push(transactions[transactionIndex])
             }
             transactionIndex++
