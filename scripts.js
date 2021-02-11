@@ -168,8 +168,68 @@ const Filter = {
 }
 
 const DOM = {
+    headerContainer: document.querySelector('#data-table thead'),
     transactionsContainer: document.querySelector('#data-table tbody'),
     footerContainer: document.querySelector('#data-table tfoot'),
+
+    addHeader(filter){
+        const tr = document.createElement('tr')
+        tr.innerHTML = DOM.innerHTMLTableHeader(filter)
+        DOM.headerContainer.appendChild(tr)
+    },
+
+    innerHTMLTableHeader(filter){
+        startDate=''
+        finalDate=''
+
+        htmlDescription=`<th>Descrição `
+        htmlAmount=`<th>Valor `
+        htmlDate=`<th>Data `
+        htmlFilter=`<th class="filter"><img onclick="Modal.open('filter')" src="./assets/filtro.png" alt="Filtrar transações">`
+
+        commands=[[1,'false','quadrado'],[2,'false','quadrado'],[3,'false','quadrado']]
+
+        if (filter.codOrder!=0){
+            if (filter.order==false){
+                commands[filter.codOrder-1][1]='true'
+                commands[filter.codOrder-1][2]='cima'
+            }
+            else{
+                commands[filter.codOrder-1][1]='false'
+                commands[filter.codOrder-1][2]='baixo'
+            }
+        }
+
+        htmlDescription=htmlDescription+`<a href="#"><img onclick="Order.changeOrder(${commands[0][0]},${commands[0][1]})" src="./assets/${commands[0][2]}.png" alt="Clique para ordenar por descrição de forma crescente"></a></th>`
+        htmlAmount=htmlAmount+`<a href="#"><img onclick="Order.changeOrder(${commands[1][0]},${commands[1][1]})" src="./assets/${commands[1][2]}.png" alt="Clique para ordenar por valor de forma crescente"></a></th>`
+        htmlDate=htmlDate+`<a href="#"><img onclick="Order.changeOrder(${commands[2][0]},${commands[2][1]})" src="./assets/${commands[2][2]}.png" alt="Clique para ordenar por data de forma crescente"></a></th>`
+
+        if(filter.startDate!='' || filter.finalDate!='' || filter.codOrder!=0){
+            htmlFilter=htmlFilter+`<img onclick="Order.clearFilter()" src="./assets/minus.svg" alt="Limpar o filtro"></img><br>`
+        }
+        else{
+            htmlFilter=htmlFilter+`<br>`
+        }
+
+        if(filter.startDate==''){
+            startDate='...'
+        }
+        else{
+            startDate=Utils.formatDate(filter.startDate)
+        }
+        if(filter.finalDate==''){
+            finalDate='...'
+        }
+        else{
+            finalDate=Utils.formatDate(filter.finalDate)
+        }
+        
+        htmlFilter=htmlFilter+`${startDate} - ${finalDate}</th>`
+
+        html=htmlDescription+htmlAmount+htmlDate+htmlFilter
+
+        return html
+    },
 
     addTransaction(transaction) {
         const tr = document.createElement('tr')
@@ -237,6 +297,10 @@ const DOM = {
         document
             .getElementById('totalDisplay')
             .innerHTML = Utils.formatCurrency(Transaction.total(transactionsToScreen))
+    },
+
+    clearTableHeader() {
+        DOM.headerContainer.innerHTML = ""
     },
 
     clearTransactions() {
@@ -488,18 +552,23 @@ const Form = {
             Modal.close()
             if (formType=='transaction'){
                 transactions=''
-                newSession=false
-                console.log(form.index)
+                filter=Filter.select()        
                 if(form.index==''){
                     transactions=Transaction.add(form)
-                    newSession=true
+                    filter={
+                        'startDate': '',
+                        'finalDate': '',
+                        'itensPerPage': filter.itensPerPage,
+                        'page':1,
+                        'codOrder':0
+                    }
                 }
                 else{
                     transactions=Transaction.edit(form)
-                    newSession=false
                 }
                 Storage.set('transaction', transactions)
-                App.init(newSession)
+                Filter.update(filter)
+                App.init(false)
 
             }
             else if (formType=='filter'){
@@ -509,6 +578,8 @@ const Form = {
                     'finalDate': form.finalDate,
                     'itensPerPage': form.itensPerPage,
                     'page': filter.page,
+                    'codOrder': filter.codOrder,
+                    'order': filter.order
                 }
                 Filter.update(filter)
                 App.init(false)
@@ -521,8 +592,76 @@ const Form = {
 }
 
 const Order ={
-    selectOrder(nameOrder, order){
-        
+    changeOrder(codOrder, order){
+        filter=Filter.select()
+        filter={
+            'startDate': filter.startDate,
+            'finalDate': filter.finalDate,
+            'itensPerPage': filter.itensPerPage,
+            'page': filter.page,
+            'codOrder': codOrder,
+            'order': order
+        }
+        Filter.update(filter)
+        App.navigation(1)
+    },
+
+    clearFilter(){
+        filter=Filter.select()
+        filter={
+            'startDate': '',
+            'finalDate': '',
+            'itensPerPage': filter.itensPerPage,
+            'page': 1,
+            'codOrder': 0,
+            'order': ''
+        }
+        Filter.update(filter)
+        App.navigation(1)
+    },
+
+    putInOrder(transactions, codOrder, order){
+        transactionsInOrder=[]
+        transactionsIndex=0
+        while (transactionsIndex<transactions.length){
+            transactionsInOrderIndex=0
+            while (transactionsInOrderIndex<transactionsInOrder.length){
+                if (codOrder==1 && order==false){
+                    if (transactions[transactionsIndex].description < transactionsInOrder[transactionsInOrderIndex].description){
+                        break
+                    }
+                }
+                else if (codOrder==1 && order==true){
+                    if (transactions[transactionsIndex].description > transactionsInOrder[transactionsInOrderIndex].description){
+                        break
+                    }
+                }
+                else if (codOrder==2 && order==false){
+                    if (transactions[transactionsIndex].amount < transactionsInOrder[transactionsInOrderIndex].amount){
+                        break
+                    }
+                }
+                else if (codOrder==2 && order==true){
+                    if (transactions[transactionsIndex].amount > transactionsInOrder[transactionsInOrderIndex].amount){
+                        break
+                    }
+                }
+                else if (codOrder==3 && order==false){
+                    if (transactions[transactionsIndex].date < transactionsInOrder[transactionsInOrderIndex].date){
+                        break
+                    }
+                }
+                else if (codOrder==3 && order==true){
+                    if (transactions[transactionsIndex].date > transactionsInOrder[transactionsInOrderIndex].date){
+                        break
+                    }
+                }
+                transactionsInOrderIndex++
+            }
+            transactionsInOrder.splice(transactionsInOrderIndex, 0, transactions[transactionsIndex])
+            transactionsIndex++
+        }
+        return transactionsInOrder
     }
 }
 
@@ -611,7 +750,8 @@ const App = {
             'startDate': '',
             'finalDate': '',
             'itensPerPage': 15,
-            'page':1
+            'page':1,
+            'codOrder':0
         }
         if (newSession || filter.length==0 ){
             Filter.update(newFilter)
@@ -634,6 +774,11 @@ const App = {
         Filter.update(filter)
         filter=Filter.select()
 
+        //put transitions in order
+        if (filter.codOrder!=0){
+            transactions=Order.putInOrder(transactions, filter.codOrder, filter.order)
+        }
+
         //checking the itens to the user's page
         startTransation=filter.itensPerPage*(filter.page-1)
         finalTransation=filter.itensPerPage*filter.page
@@ -642,8 +787,11 @@ const App = {
         transactionsToPage=transactions.slice(startTransation,finalTransation)
 
         //cleaning the user's page
+        DOM.clearTableHeader()
         DOM.clearTransactions()
         DOM.clearTableFooter()
+
+        DOM.addHeader(filter)
 
         //working to show the informations
         indexToPage=0

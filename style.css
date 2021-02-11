@@ -279,6 +279,10 @@ td.commands img{
     padding-right: 1rem;
 }
 
+th.filter img{
+    padding-right: 1rem;
+}
+
 table tfoot tr{
     align-items: center;
     text-align: center;
