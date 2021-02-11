@@ -54,21 +54,26 @@
             <section id="transaction">
                 <h2 class="sr-only">Transações</h2>
 
-                <a href="#" 
-                onclick="Modal.open('simple')"
-                class="button new">+ Nova Transação</a>
                 
-                <a href="#" 
-                onclick="Modal.open('installments')"
-                class="button new">+ Nova Transação Parcelada</a>
+                <nav class='menuTransation'>
+                    <ul>
+                        <li>+ Nova Transação
+                            <ul>
+                                <li><a class="button new" href="#" onclick="Modal.open('simple')">À vista</a></li>
+                                <li><a class="button new" href="#" onclick="Modal.open('installments')">Parcelada</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </nav>
                 
                 <table id="data-table">
                     <thead>
                         <tr>
-                            <th>Descrição</th>
-                            <th>Valor</th>
-                            <th>Data</th>
-                            <th><img onclick="Modal.open('filter')" src="./assets/filtro.png" alt="Filtrar transações"></th>
+                            <th>Descrição <a href="#"><img src="./assets/quadrado.png" alt=""></a></th>
+                            <th>Valor <img src="./assets/baixo.png" alt=""></th>
+                            <th>Data <img src="./assets/cima.png" alt=""></th>
+                            <th class="filter"><img onclick="Modal.open('filter')" src="./assets/filtro.png" alt="Filtrar transações"><br>01/02/2021 - 28/02/2021</th>
+                            
                         </tr>
                     </thead>
                     <tbody>

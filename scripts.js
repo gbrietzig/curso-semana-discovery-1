@@ -212,14 +212,14 @@ const DOM = {
         nextPage=currencyPage+1
 
         if (currencyPage<2){
-            html = html+`<< < `
+            html = html+`<a class="page disable"><<</a> <a class="page disable"><</a>`
         }
         else{
             html = html+`<a class="page" href="#" onclick="App.navigation(1)"><<</a> <a class="page" href="#" onclick="App.navigation(${backPage})"><</a>`
         }
         html = html+` ${currencyPage} `
         if (currencyPage==lastPage){
-            html = html+` > >>`
+            html = html+`<a class="page disable">></a> <a class="page disable">>></a>`
         }
         else{
             html = html+`<a class="page" href="#" onclick="App.navigation(${nextPage})">></a> <a class="page" href="#" onclick="App.navigation(${lastPage})">>></a>`
@@ -489,7 +489,8 @@ const Form = {
             if (formType=='transaction'){
                 transactions=''
                 newSession=false
-                if(Form.index.value==''){
+                console.log(form.index)
+                if(form.index==''){
                     transactions=Transaction.add(form)
                     newSession=true
                 }
@@ -517,6 +518,12 @@ const Form = {
             alert(error.message)
         }
     },
+}
+
+const Order ={
+    selectOrder(nameOrder, order){
+        
+    }
 }
 
 const Calculations = { 

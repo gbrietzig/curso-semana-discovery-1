@@ -65,6 +65,16 @@ a:hover {
     margin: 0 10px;
 }
 
+.page.disable {
+    color: #969cb3
+}
+
+.page.disable:hover {
+    text-decoration: none ;
+    color: #969cb3;
+    cursor:default;
+}
+
 button {
     width: 100%;
     height: 50px;
@@ -162,6 +172,40 @@ header {
     color: white;
 }
 
+/* Transaction ================ */
+.menuTransation ul{
+    list-style: none;
+    position: relative;
+}
+
+.menuTransation ul li{
+    float:left; 
+    color: var(--green);
+}
+
+.menuTransation ul li:hover{
+    color: var(--light-green);
+}
+
+.menuTransation a{
+    padding: 15px;    
+    display: block;    
+    text-decoration: none;    
+    text-align: center;    
+}
+
+.menuTransation ul ul{
+    position: absolute;
+    visibility: hidden;
+}
+
+.menuTransation ul li:hover ul{
+    visibility: visible;
+}
+
+.menuTransation .button.new {
+    background-color: white;
+}
 /* Table ===================== */
 #transaction {
     display: block;
@@ -192,11 +236,14 @@ table tbody tr td:last-child{
 
 table thead th {
     background: white;
-
+    align-items: center;
     font-weight: normal;
     padding: 1rem 2rem;
-
     text-align: left;
+    white-space: nowrap
+}
+table thead th.filter{
+    text-align: center;
 }
 
 table tbody tr {
@@ -222,6 +269,10 @@ td.income {
 
 td.expense {
     color: #e92929;
+}
+
+td.commands{
+    text-align: center;
 }
 
 td.commands img{
