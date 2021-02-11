@@ -3,9 +3,3 @@
 
 
 
-
-<datails>
-  <summary> <b>asdf </b><i> click</i></summary>
-  <br>
-  ok
-</details>
