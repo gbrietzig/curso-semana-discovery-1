@@ -20,6 +20,8 @@
 
 O dev.finances é uma aplicação de controle financeiro desenvolvida através da Maratona Discover, uma iniciativa da Rocketseat. Nessa aplicação é possível cadastrar e excluir transações e ver o saldo de entrada e saída 💰
 
+<a href="https://gbrietzig.github.io/curso-semana-discovery-1/">Clique para acessar o projeto</a>
+
 
 ## 🚀 Tecnologias
 
@@ -39,7 +41,8 @@ Esse projeto foi desenvolvido com as seguintes tecnologias:
 - [X] Ordenação;
 - [X] Transação parcelada;
 - [X] Edição;
-- [ ] Alteração de tema;
+- [ ] Troca de tema;
+- [ ] Alterar para vermelho o card Total quando conta estiver negativa;
 
 
 ## :eyes: Demonstrações
