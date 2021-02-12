@@ -37,22 +37,21 @@ Esse projeto foi desenvolvido com as seguintes tecnologias:
 - [ ] Alteração de tema;
 
 <p align="center">
-  <a href="#-filtro">Filtro por período</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="#-Filtro por período">Filtro por período</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#-paginacao">Paginação</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#-Seleção de itens por página">Seleção de itens por página</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="#-Ordenação">Graficos</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#-Ordenação">Ordenação</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#-Transação parcelada">Transação parcelada</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#-Edição">Edição</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
 </p>
 
-<details><summary><a id="#-filtro">Filtro por período</a></summary>
+<details><summary><a id="#-filtro">## Filtro por período</a></summary>
 <p>
 
-#### teste
+Com esse recurso o usuário pode selecionar uma data mínima, uma data máxima ou um período do qual ele quer analisar as transações
 
-```python
-print("hello world!")
-```
+<div align="center"><img  width="100%" src="./assets/filtro.gif"></div>
 
 </p>
 </details>
