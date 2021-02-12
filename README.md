@@ -78,7 +78,7 @@ Com esse recurso o usuário pode visualizar as 5 maiores entradas e saídas e a 
 <details><summary>Ordenação</a></summary>
 <p>
 Com esse recurso o usuário pode organizar de maneira crescente ou decrescente os dados por descrição, valor ou data.
-<div align="center"><img  width="100%" src="./assets/ordencacao.gif.gif"></div>
+<div align="center"><img  width="100%" src="./assets/ordencacao.gif"></div>
 </p>
 </details>
 
