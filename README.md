@@ -4,7 +4,7 @@
   <a href="#-projeto">Projeto</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#-tecnologias">Tecnologias</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#-implementações">Implementações</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-  <a href="#-demonstrações">Demonstrações</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="#eyes-demonstrações">Demonstrações</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
 </p>
 
 
@@ -44,7 +44,7 @@ Esse projeto foi desenvolvido com as seguintes tecnologias:
 
 ## :eyes: Demonstrações
 
-<details><summary>Filtro por período</a></summary>
+<details><summary>## Filtro por período</a></summary>
 <p>
 Com esse recurso o usuário pode selecionar uma data mínima, uma data máxima ou um período do qual ele quer analisar as transações.
 <div align="center"><img  width="100%" src="./assets/filtro.gif"></div>
