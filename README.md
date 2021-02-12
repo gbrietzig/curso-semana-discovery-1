@@ -85,3 +85,8 @@ Com esse recurso o usuário pode editar transações já existentes.
 <div align="center"><img  width="100%" src="./assets/edicao.gif"></div>
 </p>
 </details>
+
+## Icones de terceiros
+- Todos os icones terceiros foram distribuitos por <a href="https://www.flaticon.com/br/" title="Flaticon">www.flaticon.com</a>
+- Filtro: Feito por <a href="https://www.freepik.com" title="Freepik">Freepik</a>
+- Editar: Feito por <a href="https://www.flaticon.com/authors/iconixar" title="iconixar">iconixar</a>
