@@ -9,8 +9,8 @@
 
 
 <p align="center">
-  <img alt="STATUS" src="https://img.shields.io/static/v1?label=STATUS&message=PRODUCTION&color=49AA26&labelColor=000000">
-  <img alt="AUTOR" src="https://img.shields.io/static/v1?label=STATUS&message=GBRIETZIG&color=49AA26&labelColor=000000">
+  <img alt="STATUS" src="https://img.shields.io/static/v1?label=STATUS&message=PRODUZINDO&color=49AA26&labelColor=000000">
+  <img alt="AUTOR" src="https://img.shields.io/static/v1?label=AUTOR&message=GBRIETZIG&color=49AA26&labelColor=000000">
 </p>
 
 <br>
