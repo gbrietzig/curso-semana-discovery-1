@@ -42,7 +42,7 @@ Esse projeto foi desenvolvido com as seguintes tecnologias:
 - [ ] Alteração de tema;
 
 
-## Demonstrações
+## :eyes: Demonstrações
 
 <details><summary>Filtro por período</a></summary>
 <p>
