@@ -1,7 +1,7 @@
 # DEV.FINANCE$
 
 <h1 align="center">
-  <img alt="dev.finances" title="dev.finances" src=".github/logo_git.svg" width="220px" />
+  <img alt="dev.finances" title="dev.finances" src="./assets/logo_git.svg" width="220px" />
 </h1>
 
 <p align="center">
