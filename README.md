@@ -75,6 +75,13 @@ Com esse recurso o usuário pode visualizar as 5 maiores entradas e saídas e a 
 </p>
 </details>
 
+<details><summary>Ordenação</a></summary>
+<p>
+Com esse recurso o usuário pode organizar de maneira crescente ou decrescente os dados por descrição, valor ou data.
+<div align="center"><img  width="100%" src="./assets/ordencacao.gif.gif"></div>
+</p>
+</details>
+
 <details><summary>Transação parcelada</a></summary>
 <p>
 Com esse recurso o usuário pode gerar várias transações ao mesmo tempo, sendo que elas vão se repetir com os mesmos dados adicionando um mês por parcela. Caso o dia selecionado inicialmente seja o dia 31 o parcelamento será cadastrada para o último dia de cada mês.
