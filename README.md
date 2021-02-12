@@ -38,14 +38,14 @@ Esse projeto foi desenvolvido com as seguintes tecnologias:
 
 <p align="center">
   <a href="#-filtro">Filtro por período</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-  <a href="#-Paginação">Paginação</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="#-paginacao">Paginação</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#-Seleção de itens por página">Seleção de itens por página</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#-Ordenação">Ordenação</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#-Transação parcelada">Transação parcelada</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#-Edição">Edição</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
 </p>
 
-<details><summary><a id="filtro">Filtro por período</a></summary>
+<details><summary><a id="#-filtro">Filtro por período</a></summary>
 <p>
 
 #### teste
@@ -56,6 +56,22 @@ print("hello world!")
 
 </p>
 </details>
+
+
+<details><summary><a id="#-paginacao">Filtro por período</a></summary>
+<p>
+
+#### teste
+
+```python
+print("hello world!")
+```
+
+</p>
+</details>
+
+
+
 
 Você pode visualizar o layout do projeto através [desse link](https://www.figma.com/file/7Vu9DzUaCZIV4nibzkjgB4/dev.finance%24-Maratona-Discover). É necessário ter conta no [Figma](https://figma.com) para acessá-lo.
 
