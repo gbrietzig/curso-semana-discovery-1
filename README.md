@@ -37,7 +37,7 @@ Esse projeto foi desenvolvido com as seguintes tecnologias:
 - [ ] Alteração de tema;
 
 <p align="center">
-  <a href="#-Filtro por período">Filtro por período</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="#-filtro">Filtro por período</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#-Paginação">Paginação</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#-Seleção de itens por página">Seleção de itens por página</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#-Ordenação">Ordenação</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
@@ -45,7 +45,7 @@ Esse projeto foi desenvolvido com as seguintes tecnologias:
   <a href="#-Edição">Edição</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
 </p>
 
-<details><summary><h3>Filtro por período/<h3></summary>
+<details><summary><a id="filtro">Filtro por período</a></summary>
 <p>
 
 #### teste
