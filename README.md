@@ -36,36 +36,45 @@ Esse projeto foi desenvolvido com as seguintes tecnologias:
 - [X] Edição;
 - [ ] Alteração de tema;
 
-<p align="center">
-  <a href="#-Filtro por período">Filtro por período</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-  <a href="#-paginacao">Paginação</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-  <a href="#-Seleção de itens por página">Seleção de itens por página</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-  <a href="#-Ordenação">Graficos</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-  <a href="#-Ordenação">Ordenação</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-  <a href="#-Transação parcelada">Transação parcelada</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-  <a href="#-Edição">Edição</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-</p>
-
-<details><summary><a id="#-filtro">## Filtro por período</a></summary>
+<details><summary>## Filtro por período</a></summary>
 <p>
-
-Com esse recurso o usuário pode selecionar uma data mínima, uma data máxima ou um período do qual ele quer analisar as transações
-
+Com esse recurso o usuário pode selecionar uma data mínima, uma data máxima ou um período do qual ele quer analisar as transações.
 <div align="center"><img  width="100%" src="./assets/filtro.gif"></div>
-
 </p>
 </details>
 
-
-<details><summary><a id="#-paginacao">Filtro por período</a></summary>
+<details><summary>Paginação</a></summary>
 <p>
+Com esse recurso o usuário pode navegar entre várias páginas de transações.
+<div align="center"><img  width="100%" src="./assets/paginação.gif"></div>
+</p>
+</details>
 
-#### teste
+<details><summary>Seleção de itens por página</a></summary>
+<p>
+Com esse recurso o usuário pode escolher quantas transações deseja por página. O valor padrão é 15 transações por página.
+<div align="center"><img  width="100%" src="./assets/itens.gif"></div>
+</p>
+</details>
 
-```python
-print("hello world!")
-```
+<details><summary>Gráficos</a></summary>
+<p>
+Com esse recurso o usuário pode visualizar as 5 maiores entradas e saídas e a porcentagem que cada uma representa do grupo. Um terceiro gráfico mostra a saúde financeira da carteira.
+<div align="center"><img  width="100%" src="./assets/graficos.gif"></div>
+</p>
+</details>
 
+<details><summary>Transação parcelada</a></summary>
+<p>
+Com esse recurso o usuário pode gerar várias transações ao mesmo tempo, sendo que elas vão se repetir com os mesmos dados adicionando um mês por parcela. Caso o dia selecionado inicialmente seja o dia 31 o parcelamento será cadastrada para o último dia de cada mês.
+<div align="center"><img  width="100%" src="./assets/parcelada.gif"></div>
+</p>
+</details>
+
+<details><summary>Edição</a></summary>
+<p>
+Com esse recurso o usuário pode editar transações já existentes.
+<div align="center"><img  width="100%" src="./assets/edicao.gif"></div>
 </p>
 </details>
 
